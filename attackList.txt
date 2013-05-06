@@ -1,0 +1,6 @@
+1, Seismic Toss, 6,
+2, Slash, 8,
+3, Hyper Beam, 20,
+4, KAMEHAMEHA, 9001,
+5, Tackle, 5,
+6, Scratch, 4,
