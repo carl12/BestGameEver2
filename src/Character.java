@@ -87,16 +87,13 @@ public class Character {
 
 	//Creates a new character with stats specified by user
 	public Character() throws IOException{
-		//PrintWriter outputStream = new PrintWriter(new FileWriter("characterList.txt", true));
-		//outputStream.println(tempName + ", " + tempAttack + ", " + tempDefense + ", " + tempSpeed + ", " + evasivenessStat + ", " + healthStat + "|");
-		//outputStream.close();
 		permaHealthStat = 25;
 		healthStat = permaHealthStat;
 		experienceStat = 0;
 		level = 1;
 		experienceBar = 10;
-		//evasivenessStat = tempEvasiveness;    not used yet
-
+		evasivenessStat = tempEvasiveness;   
+		
 		writeCharacter();
 		//System.out.println("default created");
 	}
@@ -170,10 +167,10 @@ public class Character {
 		attackStat = input;
 		return attackStat;
 	}
-	public int setIOAttack(String characterName, int input){
+	public int setIOAttack(int input){
 
 		try{
-			replace(characterName, 2, Integer.toString(input));
+			replace(getName(), 2, Integer.toString(input));
 		} catch (IOException e){
 		}
 
@@ -209,9 +206,9 @@ public class Character {
 		defenseStat = input;
 		return defenseStat;
 	}
-	public int setIODefense(String characterName, int input){
+	public int setIODefense(int input){
 		try{
-			replace(characterName, 3, Integer.toString(input));
+			replace(getName(), 3, Integer.toString(input));
 		} catch (IOException e){
 		}
 
@@ -247,9 +244,9 @@ public class Character {
 		speedStat = input;
 		return speedStat;
 	}
-	public int setIOSpeed(String characterName, int input){
+	public int setIOSpeed(int input){
 		try{
-			replace(characterName, 4, Integer.toString(input));
+			replace(getName(), 4, Integer.toString(input));
 		} catch (IOException e){
 		}
 
@@ -262,11 +259,41 @@ public class Character {
 	public int getEvasiveness(){
 		return evasivenessStat;
 	}
+	public int getIOEvasiveness(String characterName) throws IOException{
+		String sb2String = getLineData(getLineNumber(characterName));
+		int numberOfAppearances = getNumberOfAppearances(',', getLineNumber(characterName));
+		int returnEvasiveness = -1;
+
+		int beginIndex = 0;
+		int endIndex = sb2String.indexOf(',');
+
+		for(int i = 0; i < numberOfAppearances; i++){
+			if(i == 3){
+				returnEvasiveness = Integer.parseInt(sb2String.substring(beginIndex, endIndex));
+				break;
+			}
+			if(i != numberOfAppearances){
+				beginIndex = endIndex + 2;
+				endIndex = sb2String.indexOf(",", endIndex + 1);
+			} 
+		}
+
+		return returnEvasiveness;
+	}
 	public int setEvasiveness(int input){
 		evasivenessStat = input;
 		return evasivenessStat;
 	}
+	public int setIOEvasiveness(int input){
+		try{
+			replace(getName(), 5, Integer.toString(input));
+		} catch (IOException e){
+		}
 
+		evasivenessStat = input;
+		return evasivenessStat;
+	}
+	
 	public int getHealth(){
 		return healthStat;
 	}
@@ -768,7 +795,7 @@ public class Character {
 			tempDefense = Integer.parseInt(defenseSelect.getText());
 			tempSpeed = Integer.parseInt(speedSelect.getText());
 			try{
-				outputStream.println(tempName + ", " + tempAttack + ", " + tempDefense + ", " + tempSpeed + ", " + evasivenessStat + ", " + healthStat + "|");
+				outputStream.println(tempName + ", " + tempAttack + ", " + tempDefense + ", " + tempSpeed + ", " + evasivenessStat + ", " + healthStat + ",");
 				setName(tempName);
 				setAttack(tempAttack);
 				setDefense(tempDefense);
@@ -1051,27 +1078,32 @@ public class Character {
 			}
 
 			if(line.trim().equals(sb2String) && targetChunk == 1){
-				writer1.println(input + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ",");
+				writer1.println(input + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + "," + getEvasiveness() + ", " + getHealth() + ",");
 				System.out.println("setting name...");
-				System.out.println("new data: " + input + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ",");
+				System.out.println("new data: " + input + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ",");
 				name = input;
 			} else if(line.trim().equals(sb2String) && targetChunk == 2){
-				writer1.println(getName() + ", " + Integer.parseInt(input) + ", " + getDefense() + ", " + getSpeed() + ",");
+				writer1.println(getName() + ", " + Integer.parseInt(input) + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ",");
 				System.out.println("setting attack...");
-				System.out.println("new data: " + getName() + ", " + Integer.parseInt(input) + ", " + getDefense() + ", " + getSpeed() + ",");
+				System.out.println("new data: " + getName() + ", " + Integer.parseInt(input) + ", " + getDefense() + ", " + getSpeed() + "," + getEvasiveness() + ", " + getHealth() + ",");
 				attackStat = Integer.parseInt(input);
 			} else if(line.trim().equals(sb2String) && targetChunk == 3){
-				writer1.println(getName() + ", " + getAttack() + ", " + Integer.parseInt(input) + ", " + getSpeed() + ",");
+				writer1.println(getName() + ", " + getAttack() + ", " + Integer.parseInt(input) + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ",");
 				System.out.println("setting defense...");
-				System.out.println("new data: " + getName() + ", " + getAttack() + ", " + Integer.parseInt(input) + ", " + getSpeed() + ",");
+				System.out.println("new data: " + getName() + ", " + getAttack() + ", " + Integer.parseInt(input) + ", " + getSpeed() + "," + getEvasiveness() + ", " + getHealth() + ",");
 				defenseStat = Integer.parseInt(input);
 			} else if(line.trim().equals(sb2String) && targetChunk == 4){
-				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + Integer.parseInt(input) + ",");
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + Integer.parseInt(input) + ", " + getEvasiveness() + ", " + getHealth() + ",");
 				System.out.println("setting speed...");
-				System.out.println("new data: " + getName() + ", " + getAttack() + ", " + getDefense() + ", " + Integer.parseInt(input) + ",");
+				System.out.println("new data: " + getName() + ", " + getAttack() + ", " + getDefense() + ", " + Integer.parseInt(input) + ", " + getEvasiveness() + ", " + getHealth() + ",");
+				speedStat = Integer.parseInt(input);
+			} else if(line.trim().equals(sb2String) && targetChunk == 5){
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + Integer.parseInt(input) + ", " + getHealth() + ",");
+				System.out.println("setting speed...");
+				System.out.println("new data: " + getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + Integer.parseInt(input) + ", " + getHealth() + ",");
 				speedStat = Integer.parseInt(input);
 			}
-	
+
 		}
 		writer1.close();
 		reader2.close();
@@ -1155,11 +1187,6 @@ public class Character {
 		}
 	}
 }
-
-
-
-
-
 
 
 
