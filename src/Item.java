@@ -5,27 +5,35 @@ public class Item {
     private int modifier;
     private String status;
     
+    private int speedModifier;
+    private double defense;
+    private double otherstats;
     
-    public boolean hasAttack;
-    private double attackDamage;
-    private int cooldown;
-    private int lifesteal;
-    private double criticalDamage;
+    private int health;
     
    
 
-    public Item()
-
+    public Item(int speedChange, double defenseIn, int healthIn)
     {
-
-        duration = 0;
-
-        modifier = 0;
-
-        status = " ";
-
+       defense = defenseIn;
+       health = healthIn;
+       speedModifier = speedChange;
+       
+       
     }
-
+    public int getSpeed()
+    {
+      return speedModifier;
+       
+    }
+    public double getDefense()
+    {
+       return defense;
+    }
+    public int getHealth()
+    {
+       return health;
+    }
     public Item(int aDuration, int aModifier, String description)
 
     {
