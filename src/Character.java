@@ -7,12 +7,9 @@
 
 /**
  * BUG NOTES:
- * lp: all set methods except setName, boolean preExists always = false --- solution: change firstSequence to secondSequence, thirdSequence, etc.
- * lp: add catches for things such as cancel inder writeCharacter, etc.  
+ * lp: add catches for things such as cancel under writeCharacter, etc.  
  * hp: add/removeAttack is not accounted for
  * hp: level changes/saves not accounted for
- * hp: calling setAttack, setDefense, etc. does not work after name has been changed via setName
- * hp: calling setAttack, setDefense, etc. when the name does not exist causes the wrong character's stat to change
  */
 
 /**
@@ -74,17 +71,21 @@ public class Character {
 	private int levelPoints = 3;
 	private JLabel pointsLeft;
 
-	//creates a new character with the stats of characterName, written in characterList.txt
+	//sets the stats of a pre-written character
 	public Character(String characterName) throws IOException{
 		//stats not written by writeCharacter listed here
 		permaHealthStat = 25;
 		healthStat = permaHealthStat;
 
-		//sets all stats
-		readCharacter(characterName);
+		//sets all stats, Character is already 
+		//FIX: SHOULD NOT BE USED TO SET ALL STATS
+		setName(getIOName(characterName));
+		setAttack(getIOAttack(characterName));
+		setDefense(getIODefense(characterName));
+		setSpeed(getIOSpeed(characterName));
 	}
 
-	//Creates a new character with default stats
+	//Creates a new character with stats specified by user
 	public Character() throws IOException{
 		//PrintWriter outputStream = new PrintWriter(new FileWriter("characterList.txt", true));
 		//outputStream.println(tempName + ", " + tempAttack + ", " + tempDefense + ", " + tempSpeed + ", " + evasivenessStat + ", " + healthStat + "|");
@@ -95,15 +96,48 @@ public class Character {
 		level = 1;
 		experienceBar = 10;
 		//evasivenessStat = tempEvasiveness;    not used yet
-		
+
 		writeCharacter();
-		System.out.println("default created");
+		//System.out.println("default created");
 	}
 
 	public String getName(){
 		return name;
 	}
+	public String getIOName(String characterName) throws IOException{
+		String sb2String = getLineData(getLineNumber(characterName));
+		int numberOfAppearances = getNumberOfAppearances(',', getLineNumber(characterName));
+		String returnName = null;
+
+		int beginIndex = 0;
+		int endIndex = sb2String.indexOf(',');
+
+		for(int i = 0; i < numberOfAppearances; i++){
+			if(i == 0){
+				returnName = sb2String.substring(beginIndex, endIndex);
+				break;
+			}
+			if(i != numberOfAppearances){
+				beginIndex = endIndex + 2;
+				endIndex = sb2String.indexOf(",", endIndex + 1);
+			} 
+		}
+
+		return returnName;
+
+	}	
+	//use if pre-written, sets system name
 	public String setName(String input){
+		name = input;
+		return name;
+	}
+	//use if changing IO, also changes system name
+	public String setIOName(String characterName, String input){
+		try{
+			replace(characterName, 1, input);
+		} catch (IOException e){
+		}
+
 		name = input;
 		return name;
 	}
@@ -111,7 +145,38 @@ public class Character {
 	public int getAttack(){
 		return attackStat;
 	}
+	public int getIOAttack(String characterName) throws IOException{
+		String sb2String = getLineData(getLineNumber(characterName));
+		int numberOfAppearances = getNumberOfAppearances(',', getLineNumber(characterName));
+		int returnAttack = -1;
+
+		int beginIndex = 0;
+		int endIndex = sb2String.indexOf(',');
+
+		for(int i = 0; i < numberOfAppearances; i++){
+			if(i == 1){
+				returnAttack = Integer.parseInt(sb2String.substring(beginIndex, endIndex));
+				break;
+			}
+			if(i != numberOfAppearances){
+				beginIndex = endIndex + 2;
+				endIndex = sb2String.indexOf(",", endIndex + 1);
+			} 
+		}
+
+		return returnAttack;
+	}
 	public int setAttack(int input){
+		attackStat = input;
+		return attackStat;
+	}
+	public int setIOAttack(String characterName, int input){
+
+		try{
+			replace(characterName, 2, Integer.toString(input));
+		} catch (IOException e){
+		}
+
 		attackStat = input;
 		return attackStat;
 	}
@@ -119,18 +184,80 @@ public class Character {
 	public int getDefense(){
 		return defenseStat;
 	}
+	public int getIODefense(String characterName) throws IOException{
+		String sb2String = getLineData(getLineNumber(characterName));
+		int numberOfAppearances = getNumberOfAppearances(',', getLineNumber(characterName));
+		int returnDefense = -1;
+
+		int beginIndex = 0;
+		int endIndex = sb2String.indexOf(',');
+
+		for(int i = 0; i < numberOfAppearances; i++){
+			if(i == 2){
+				returnDefense = Integer.parseInt(sb2String.substring(beginIndex, endIndex));
+				break;
+			}
+			if(i != numberOfAppearances){
+				beginIndex = endIndex + 2;
+				endIndex = sb2String.indexOf(",", endIndex + 1);
+			} 
+		}
+
+		return returnDefense;
+	}
 	public int setDefense(int input){
 		defenseStat = input;
 		return defenseStat;
+	}
+	public int setIODefense(String characterName, int input){
+		try{
+			replace(characterName, 3, Integer.toString(input));
+		} catch (IOException e){
+		}
+
+		attackStat = input;
+		return attackStat;
 	}
 
 	public int getSpeed(){
 		return speedStat;
 	}
+	public int getIOSpeed(String characterName) throws IOException{
+		String sb2String = getLineData(getLineNumber(characterName));
+		int numberOfAppearances = getNumberOfAppearances(',', getLineNumber(characterName));
+		int returnSpeed = -1;
+
+		int beginIndex = 0;
+		int endIndex = sb2String.indexOf(',');
+
+		for(int i = 0; i < numberOfAppearances; i++){
+			if(i == 2){
+				returnSpeed = Integer.parseInt(sb2String.substring(beginIndex, endIndex));
+				break;
+			}
+			if(i != numberOfAppearances){
+				beginIndex = endIndex + 2;
+				endIndex = sb2String.indexOf(",", endIndex + 1);
+			} 
+		}
+
+		return returnSpeed;
+	}
 	public int setSpeed(int input){
 		speedStat = input;
 		return speedStat;
 	}
+	public int setIOSpeed(String characterName, int input){
+		try{
+			replace(characterName, 4, Integer.toString(input));
+		} catch (IOException e){
+		}
+
+		defenseStat = input;
+		return defenseStat;
+	}
+
+
 
 	public int getEvasiveness(){
 		return evasivenessStat;
@@ -311,7 +438,7 @@ public class Character {
 	public void removeAttack(){
 
 		String theAttack = null;
-		
+
 		System.out.println("Which move would you like to remove?");
 		for(int i = 0; i < 4; i++){
 			if(attackList[i] != null){
@@ -321,16 +448,16 @@ public class Character {
 
 		JOptionPane removePane = new JOptionPane();
 		JPanel removePanel = new JPanel();
-		
+
 		JTextArea whichAttack = new JTextArea();
 		removePanel.add(whichAttack);
-		
+
 		int result = removePane.showConfirmDialog(null, removePanel, 
 				"Delete a Move", JOptionPane.OK_CANCEL_OPTION);	
-		
+
 		if(result == JOptionPane.OK_OPTION){
 			theAttack = whichAttack.getText();
-			
+
 			for(int i = 0; i < 4; i++){
 				if(attackList[i].getName().compareToIgnoreCase(theAttack) == 0){
 					attackList[i] = null;
@@ -386,7 +513,7 @@ public class Character {
 					}
 				}	
 			}
-			
+
 		}**/
 	}
 	public void removeAttack(Attacks replaceAttack){
@@ -480,7 +607,7 @@ public class Character {
 		}
 	}
 
-	//reads from characterList and sets name, attack, defense, and speed accordingly
+	//reads from characterList, does not set any stats
 	public void readCharacter() throws IOException{
 		int k = getLineNumber(getName());
 		int numberOfAppearances = getNumberOfAppearances(',', k);
@@ -494,20 +621,20 @@ public class Character {
 		for(int i = 0; i < numberOfAppearances; i++){
 			//set name and attack
 			if(i == 0){
-				setName((String) sb2String.subSequence(beginIndex, endIndex));
+				//setName((String) sb2String.subSequence(beginIndex, endIndex));
 				System.out.println("name is: " + getName());
 			}
 			else if(i == 1){
-				setAttack(Integer.parseInt((String) sb2String.subSequence(beginIndex, endIndex)));
+				//setAttack(Integer.parseInt((String) sb2String.subSequence(beginIndex, endIndex)));
 				System.out.println("attack is: " + getAttack());
 			}  
 			else if(i == 2){
-				setDefense(Integer.parseInt((String) sb2String.subSequence(beginIndex, endIndex)));
+				//setDefense(Integer.parseInt((String) sb2String.subSequence(beginIndex, endIndex)));
 				System.out.println("defense is: " + getDefense());
 			}
 
 			else if(i == 3){
-				setSpeed(Integer.parseInt((String) sb2String.subSequence(beginIndex, endIndex)));
+				//setSpeed(Integer.parseInt((String) sb2String.subSequence(beginIndex, endIndex)));
 				System.out.println("speed is: " + getSpeed());
 			}
 
@@ -531,20 +658,20 @@ public class Character {
 		for(int i = 0; i < numberOfAppearances; i++){
 			//set name and attack
 			if(i == 0){
-				setName((String) sb2String.subSequence(beginIndex, endIndex));
+				//setName((String) sb2String.subSequence(beginIndex, endIndex));
 				System.out.println("name is: " + getName());
 			}
 			else if(i == 1){
-				setAttack(Integer.parseInt((String) sb2String.subSequence(beginIndex, endIndex)));
+				//setAttack(Integer.parseInt((String) sb2String.subSequence(beginIndex, endIndex)));
 				System.out.println("attack is: " + getAttack());
 			}  
 			else if(i == 2){
-				setDefense(Integer.parseInt((String) sb2String.subSequence(beginIndex, endIndex)));
+				//setDefense(Integer.parseInt((String) sb2String.subSequence(beginIndex, endIndex)));
 				System.out.println("defense is: " + getDefense());
 			}
 
 			else if(i == 3){
-				setSpeed(Integer.parseInt((String) sb2String.subSequence(beginIndex, endIndex)));
+				//setSpeed(Integer.parseInt((String) sb2String.subSequence(beginIndex, endIndex)));
 				System.out.println("speed is: " + getSpeed());
 			}
 
@@ -902,6 +1029,62 @@ public class Character {
 		return sb2String;
 	}
 
+	public void replace(String targetName, int targetChunk, String input) throws IOException{
+		String sb2String = getLineData(getLineNumber(targetName));
+
+		File inFile = new File("characterList.txt");
+		File tempFile = new File(inFile.getAbsolutePath() + ".tmp");
+
+		BufferedReader reader2 = new BufferedReader(new FileReader("characterList.txt"));
+		PrintWriter writer1 = new PrintWriter(new FileWriter(tempFile));
+
+		String line = null;
+
+		//Read from the original file and write to the new 
+		//unless content matches data to be removed.
+		while ((line = reader2.readLine()) != null) {
+
+			if (!line.trim().equals(sb2String)) {
+				writer1.println(line);
+				writer1.flush();
+				System.out.println("copied");
+			}
+
+			if(line.trim().equals(sb2String) && targetChunk == 1){
+				writer1.println(input + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ",");
+				System.out.println("setting name...");
+				System.out.println("new data: " + input + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ",");
+				name = input;
+			} else if(line.trim().equals(sb2String) && targetChunk == 2){
+				writer1.println(getName() + ", " + Integer.parseInt(input) + ", " + getDefense() + ", " + getSpeed() + ",");
+				System.out.println("setting attack...");
+				System.out.println("new data: " + getName() + ", " + Integer.parseInt(input) + ", " + getDefense() + ", " + getSpeed() + ",");
+				attackStat = Integer.parseInt(input);
+			} else if(line.trim().equals(sb2String) && targetChunk == 3){
+				writer1.println(getName() + ", " + getAttack() + ", " + Integer.parseInt(input) + ", " + getSpeed() + ",");
+				System.out.println("setting defense...");
+				System.out.println("new data: " + getName() + ", " + getAttack() + ", " + Integer.parseInt(input) + ", " + getSpeed() + ",");
+				defenseStat = Integer.parseInt(input);
+			} else if(line.trim().equals(sb2String) && targetChunk == 4){
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + Integer.parseInt(input) + ",");
+				System.out.println("setting speed...");
+				System.out.println("new data: " + getName() + ", " + getAttack() + ", " + getDefense() + ", " + Integer.parseInt(input) + ",");
+				speedStat = Integer.parseInt(input);
+			}
+	
+		}
+		writer1.close();
+		reader2.close();
+
+		//Delete the original file
+		if (!inFile.delete()) {
+			System.out.println("Could not delete file");
+		}
+		//Rename the new file to the filename the original file had.
+		if (!tempFile.renameTo(inFile))
+			System.out.println("Could not rename file");	
+	}
+
 
 	public class upAttackListener implements ActionListener{
 		public void actionPerformed(ActionEvent arg0) {
@@ -971,7 +1154,6 @@ public class Character {
 			}
 		}
 	}
-
 }
 
 
@@ -992,6 +1174,7 @@ public class Character {
 
 
 
- 
+
+
 
 
