@@ -2,11 +2,16 @@
 public class Item {
 
     private int duration;
-
     private int modifier;
-
     private String status;
-
+    
+    
+    public boolean hasAttack;
+    private double attackDamage;
+    private int cooldown;
+    private int lifesteal;
+    private double criticalDamage;
+    
    
 
     public Item()
