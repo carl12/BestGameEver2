@@ -2,6 +2,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -18,10 +19,14 @@ public class Arena extends JPanel{
 	//boolean oneFirst = false;
 	//boolean gameEnded = false;
 	//boolean gameStarted = false;
+	
+	//CONSTANTS
+	final int GRID_ROW = 7;
+	final int GRID_COLUMN = 7;
+	
+	Character one = new Character(0, 3, Color.RED);
+	Character two = new Character(6, 3, Color.BLUE);
 
-	Character one = new Character();
-	Character two = new Character();
-	boolean characterCreated = false;
 	JMenuBar menuBar;
 	JMenu fileMenu, optionMenu, levelMenu;
 	JMenuItem exit, normal, desert, city, endGame;
@@ -30,6 +35,7 @@ public class Arena extends JPanel{
 	CityChoice cityChoice;
 	NormalChoice normalChoice;
 	ExitChoice exitChoice;
+	GridPanel[][] grid = new GridPanel[GRID_ROW][GRID_COLUMN];
 
 	public Arena() throws IOException
 	{
@@ -52,7 +58,7 @@ public class Arena extends JPanel{
 		//		endChoice = new EndChoice();
 		background = new Environments(1);
 
-		add(menuBar);
+		//add(menuBar);
 		menuBar.add(fileMenu);
 		menuBar.add(optionMenu);
 		fileMenu.add(exit);
@@ -72,21 +78,62 @@ public class Arena extends JPanel{
 		one.addAttack(new Attacks(5));
 		two.addAttack(new Attacks(6));
 
-		//new stuff here
-		//battle(one, two);
+
+		setLayout(new GridLayout(7,7));
+		for(int y = 0; y < 7; y++)
+		{
+			for(int x = 0; x < 7; x++)
+			{
+				grid[y][x] = new GridPanel();
+				grid[y][x].setBorder(BorderFactory.createLineBorder(Color.black));
+				
+			}
+		}
+		grid[one.y][one.x] = new GridPanel(one);
+		grid[two.y][two.x] = new GridPanel(two);
+		updateGrid();
+	}
+	public void updateGrid()
+	{
+		for(int y = 0; y < 7; y++)
+		{
+			for(int x = 0; x < 7; x++)
+			{
+				add(grid[y][x]);
+				grid[y][x].revalidate();
+			}
+		}
+	}
+	public void move(int direction, Character fighter, int x, int y)
+	{
+		for(int yIndex = 0; yIndex < 7; yIndex++)
+		{
+			for(int xIndex = 0; xIndex < 7; xIndex++)
+			{
+				remove(grid[yIndex][xIndex]);
+				grid[yIndex][xIndex] = new GridPanel();
+				grid[yIndex][xIndex].setBorder(BorderFactory.createLineBorder(Color.black));
+				
+			}
+		}
+		fighter.x = x;
+		fighter.y = y;
+		grid[y][x] = new GridPanel(fighter);
+		if(fighter == one)
+		{
+			grid[two.y][two.x] = new GridPanel(two);
+		}
+		else
+		{
+			grid[one.y][one.x] = new GridPanel(one);
+		}
+		updateGrid();
 	}
 	public void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
-		if(!characterCreated)
-
-		//one.addAttack(new Attacks(5));
-		//two.addAttack(new Attacks(6));
-
 		background.paint(g);
 
-		one.create(g,50,300,Color.RED);
-		two.create(g, 350, 300, Color.BLUE);
 
 	}
 	private class DesertChoice implements ActionListener{

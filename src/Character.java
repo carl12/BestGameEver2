@@ -40,7 +40,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 public class Character {
-
+	Color color;
+	int x;
+	int y;
 	private String name;
 	private int attackStat;
 	private int defenseStat;
@@ -96,6 +98,23 @@ public class Character {
 		
 		writeCharacter();
 		//System.out.println("default created");
+	}
+	public Character(int anX, int anY, Color color) throws IOException{
+		//PrintWriter outputStream = new PrintWriter(new FileWriter("characterList.txt", true));
+		//outputStream.println(tempName + ", " + tempAttack + ", " + tempDefense + ", " + tempSpeed + ", " + evasivenessStat + ", " + healthStat + "|");
+		//outputStream.close();
+		permaHealthStat = 25;
+		healthStat = permaHealthStat;
+		experienceStat = 0;
+		level = 1;
+		experienceBar = 10;
+		this.color = color;
+		x = anX;
+		y = anY;
+		//evasivenessStat = tempEvasiveness;    not used yet
+		
+		//writeCharacter();
+		System.out.println("default created");
 	}
 
 	public String getName(){
@@ -618,20 +637,12 @@ public class Character {
 		}
 		return congratulations;
 	}
-	public void create(Graphics g, int x, int y, Color color)
+	public void create(Graphics g)
 	{
 		g.setColor(color);
-		g.drawOval(x, y, 100, 100);
-		g.fillOval(x, y, 100, 100);
-		g.setColor(Color.black);
-		g.drawString(name, x + 30, y + 50);
-		g.drawString("Health: ", x, y - 100);
-		if(healthStat > 0)
-		{
-			g.drawRect(x + 50, y - 110, permaHealthStat * 4, 10);
-			g.setColor(Color.red);
-			g.fillRect(x + 50, y - 110, healthStat * 4, 10);
-		}
+		g.drawOval(25, 2, 50, 50);
+		g.fillOval(25, 2, 50, 50);
+	
 	}
 
 	//reads from characterList, does not set any stats
