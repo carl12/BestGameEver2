@@ -113,7 +113,7 @@ public class Character {
 		y = anY;
 		//evasivenessStat = tempEvasiveness;    not used yet
 		
-		//writeCharacter();
+		writeCharacter();
 		System.out.println("default created");
 	}
 
