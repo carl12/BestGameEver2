@@ -19,11 +19,11 @@ public class Arena extends JPanel{
 	//boolean oneFirst = false;
 	//boolean gameEnded = false;
 	//boolean gameStarted = false;
-	
+
 	//CONSTANTS
 	final int GRID_ROW = 7;
 	final int GRID_COLUMN = 7;
-	
+
 	Character one = new Character(0, 3, Color.RED);
 	Character two = new Character(6, 3, Color.BLUE);
 
@@ -86,7 +86,7 @@ public class Arena extends JPanel{
 			{
 				grid[y][x] = new GridPanel();
 				grid[y][x].setBorder(BorderFactory.createLineBorder(Color.black));
-				
+
 			}
 		}
 		grid[one.y][one.x] = new GridPanel(one);
@@ -106,28 +106,32 @@ public class Arena extends JPanel{
 	}
 	public void move(int direction, Character fighter, int x, int y)
 	{
-		for(int yIndex = 0; yIndex < 7; yIndex++)
+		if(0 <= x && x < 7 && y >= 0 && y < 7 && !grid[y][x].hasFighter)
 		{
-			for(int xIndex = 0; xIndex < 7; xIndex++)
+			for(int yIndex = 0; yIndex < 7; yIndex++)
 			{
-				remove(grid[yIndex][xIndex]);
-				grid[yIndex][xIndex] = new GridPanel();
-				grid[yIndex][xIndex].setBorder(BorderFactory.createLineBorder(Color.black));
-				
+				for(int xIndex = 0; xIndex < 7; xIndex++)
+				{
+					remove(grid[yIndex][xIndex]);
+					grid[yIndex][xIndex] = new GridPanel();
+					grid[yIndex][xIndex].setBorder(BorderFactory.createLineBorder(Color.black));
+
+				}
 			}
+			fighter.x = x;
+			fighter.y = y;
+			grid[y][x] = new GridPanel(fighter);
+			if(fighter == one)
+			{
+				grid[two.y][two.x] = new GridPanel(two);
+			}
+			else
+			{
+				grid[one.y][one.x] = new GridPanel(one);
+			}
+
+			updateGrid();
 		}
-		fighter.x = x;
-		fighter.y = y;
-		grid[y][x] = new GridPanel(fighter);
-		if(fighter == one)
-		{
-			grid[two.y][two.x] = new GridPanel(two);
-		}
-		else
-		{
-			grid[one.y][one.x] = new GridPanel(one);
-		}
-		updateGrid();
 	}
 	public void paintComponent(Graphics g)
 	{

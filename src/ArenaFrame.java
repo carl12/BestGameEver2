@@ -17,7 +17,7 @@ public class ArenaFrame extends JFrame
 	final int DOWN_CLICK = 2;
 	final int RIGHT_CLICK = 3;
 	final int LEFT_CLICK = 4;
-	
+
 	boolean onesTurn = false;
 	boolean gameEnded = true;
 	boolean gameRestarted = false;
@@ -26,14 +26,14 @@ public class ArenaFrame extends JFrame
 	JButton attackButton;
 	JButton finishButton;
 	Arena arena;
-	
+
 	StartButtonListener startListener;
 	AttackButtonListener attackListener;
 	UpButtonListener upListener;
 	DownButtonListener downListener;
 	RightButtonListener rightListener;
 	LeftButtonListener leftListener;
-	
+
 	JPanel inputPanel;
 	JPanel statsPanel;
 	JPanel menuPanel;
@@ -51,7 +51,7 @@ public class ArenaFrame extends JFrame
 	JButton twoAttackButtons[] = new JButton[4];
 	JButton twoItemButtons[] = new JButton[3];
 	String input;
-	
+
 	StringBuffer history;
 	//Thread t1;
 	//JPanel northPanel;
@@ -59,17 +59,17 @@ public class ArenaFrame extends JFrame
 	{
 		setLayout(new BorderLayout());
 		arena = new Arena();
-		
+
 		startListener = new StartButtonListener();
 		attackListener = new AttackButtonListener();
 		upListener = new UpButtonListener();
 		downListener = new DownButtonListener();
 		leftListener = new LeftButtonListener();
 		rightListener = new RightButtonListener();
-		
+
 		startButton = new JButton("Start Battle?");
 		attackButton = new JButton("Attack!");
-		
+
 		attack11 = new JButton("None");
 		attack12 = new JButton("None");
 		attack13 = new JButton("None");
@@ -84,7 +84,7 @@ public class ArenaFrame extends JFrame
 		item21 = new JButton("None");
 		item22 = new JButton("None");
 		item23 = new JButton("None");
-		
+
 		dPad = new JPanel(new GridLayout(3,3));
 		dPadPanel = new JPanel();
 		upButton = new JButton("^");
@@ -98,7 +98,7 @@ public class ArenaFrame extends JFrame
 		blank5 = new JLabel();
 		blank6 = new JLabel("                                                                                                                                                                      ");
 		blank7 = new JLabel("                                                                                                                                                                      ");
-		
+
 		inputPanel = new JPanel();
 		statsPanel = new JPanel(new BorderLayout());
 		menuPanel = new JPanel();
@@ -130,7 +130,7 @@ public class ArenaFrame extends JFrame
 		attackOneLabel = new JLabel("What will " + arena.one.getName() + " do?");
 		attackTwoLabel = new JLabel("What will " + arena.two.getName() + " do?");
 		restartLabel = new JLabel("Press 'Start Battle' to battle again!");
-		
+
 		oneAttackPanel.add(attack11);
 		oneAttackPanel.add(attack12);
 		oneAttackPanel.add(attack13);
@@ -145,7 +145,7 @@ public class ArenaFrame extends JFrame
 		twoItemPanel.add(item22);
 		twoItemPanel.add(item23);
 		twoAttackPanel.add(attack24);
-		
+
 		// making d-pad
 		dPad.add(blank1);
 		dPad.add(upButton);
@@ -164,7 +164,7 @@ public class ArenaFrame extends JFrame
 		dPadPanel.add(blank6, BorderLayout.WEST);
 		dPadPanel.add(dPad, BorderLayout.CENTER);
 		dPadPanel.add(blank7, BorderLayout.EAST);
-		
+
 		inputPanel.add(enterStartLabel);
 		inputPanel.add(startButton);
 		statsPanel.add(inputPanel, BorderLayout.NORTH);
@@ -209,8 +209,8 @@ public class ArenaFrame extends JFrame
 		}
 		if(!gameEnded)
 		{
-		inputPanel.add(attackField);
-		inputPanel.add(attackButton);
+			inputPanel.add(attackField);
+			inputPanel.add(attackButton);
 		}
 		inputPanel.revalidate();
 		repaint();
@@ -341,58 +341,68 @@ public class ArenaFrame extends JFrame
 	{
 
 		public void actionPerformed(ActionEvent arg0) {
-			if(onesTurn)
+			if(!gameEnded)
 			{
-			arena.move(UP_CLICK,arena.one, arena.one.x, arena.one.y - 1);
+				if(onesTurn)
+				{
+					arena.move(UP_CLICK,arena.one, arena.one.x, arena.one.y - 1);
+				}
+				else
+				{
+					arena.move(UP_CLICK, arena.two, arena.two.x, arena.two.y - 1);	
+				}
 			}
-			else
-			{
-			arena.move(UP_CLICK, arena.two, arena.two.x, arena.two.y - 1);	
-			}
-			
 		}
-		
 	}
 	private class DownButtonListener implements ActionListener
 	{
 
 		public void actionPerformed(ActionEvent arg0) {
-			if(onesTurn)
+			if(!gameEnded)
 			{
-			arena.move(DOWN_CLICK,arena.one, arena.one.x, arena.one.y + 1);
+				if(onesTurn)
+				{
+					arena.move(DOWN_CLICK,arena.one, arena.one.x, arena.one.y + 1);
+				}
+				else
+				{
+					arena.move(DOWN_CLICK, arena.two, arena.two.x, arena.two.y + 1);	
+				}
 			}
-			else
-			{
-			arena.move(DOWN_CLICK, arena.two, arena.two.x, arena.two.y + 1);	
-			}
-			
 		}
 	}
 	private class LeftButtonListener implements ActionListener
 	{
 
 		public void actionPerformed(ActionEvent arg0) {
-			if(onesTurn)
+			if(!gameEnded)
 			{
-			arena.move(LEFT_CLICK,arena.one, arena.one.x - 1, arena.one.y);
-			}
-			else
-			{
-			arena.move(LEFT_CLICK, arena.two, arena.two.x - 1, arena.two.y);	
+				if(onesTurn)
+				{
+					arena.move(LEFT_CLICK,arena.one, arena.one.x - 1, arena.one.y);
+				}
+				else
+				{
+					arena.move(LEFT_CLICK, arena.two, arena.two.x - 1, arena.two.y);	
+				}
 			}
 		}
 	}
 	private class RightButtonListener implements ActionListener
 	{
 
-		public void actionPerformed(ActionEvent arg0) {
-			if(onesTurn)
+		public void actionPerformed(ActionEvent arg0) 
+		{
+			if(!gameEnded)
 			{
-			arena.move(RIGHT_CLICK,arena.one, arena.one.x + 1, arena.one.y);
-			}
-			else
-			{
-			arena.move(RIGHT_CLICK, arena.two, arena.two.x + 1, arena.two.y);	
+				if(onesTurn)
+				{
+					arena.move(RIGHT_CLICK,arena.one, arena.one.x + 1, arena.one.y);
+				}
+				else
+				{
+					arena.move(RIGHT_CLICK, arena.two, arena.two.x + 1, arena.two.y);	
+				}
 			}
 		}
 	}
