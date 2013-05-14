@@ -76,15 +76,17 @@ public class Character {
 	//sets the stats of a pre-written character
 	public Character(String characterName) throws IOException{
 		//stats not written by writeCharacter listed here
-		permaHealthStat = 25;
-		healthStat = permaHealthStat;
 
-		//sets all stats, Character is already 
-		//FIX: SHOULD NOT BE USED TO SET ALL STATS
 		setName(getIOName(characterName));
 		setAttack(getIOAttack(characterName));
 		setDefense(getIODefense(characterName));
 		setSpeed(getIOSpeed(characterName));
+		setEvasiveness(getIOEvasiveness(characterName));
+		setHealth(getIOHealth(characterName));
+
+		for(int i = 0; i < 4; i++){
+			attackList[i] = new Attacks(getMoveNumber(getName(), i));
+		}
 	}
 
 	//Creates a new character with stats specified by user
@@ -95,24 +97,32 @@ public class Character {
 		level = 1;
 		experienceBar = 10;
 		evasivenessStat = tempEvasiveness;   
-		
+
+		for(int i = 0; i < 4; i++){
+			attackList[i] = new Attacks(7);
+		}
+
 		writeCharacter();
 		//System.out.println("default created");
 	}
+
 	public Character(int anX, int anY, Color color) throws IOException{
-		//PrintWriter outputStream = new PrintWriter(new FileWriter("characterList.txt", true));
-		//outputStream.println(tempName + ", " + tempAttack + ", " + tempDefense + ", " + tempSpeed + ", " + evasivenessStat + ", " + healthStat + "|");
-		//outputStream.close();
 		permaHealthStat = 25;
 		healthStat = permaHealthStat;
 		experienceStat = 0;
 		level = 1;
 		experienceBar = 10;
+		evasivenessStat = tempEvasiveness;   
+
+		for(int i = 0; i < 4; i++){
+			attackList[i] = new Attacks(7);
+		}
+
 		this.color = color;
 		x = anX;
 		y = anY;
 		//evasivenessStat = tempEvasiveness;    not used yet
-		
+
 		writeCharacter();
 		System.out.println("default created");
 	}
@@ -231,8 +241,8 @@ public class Character {
 		} catch (IOException e){
 		}
 
-		attackStat = input;
-		return attackStat;
+		defenseStat = input;
+		return defenseStat;
 	}
 
 	public int getSpeed(){
@@ -247,7 +257,7 @@ public class Character {
 		int endIndex = sb2String.indexOf(',');
 
 		for(int i = 0; i < numberOfAppearances; i++){
-			if(i == 2){
+			if(i == 3){
 				returnSpeed = Integer.parseInt(sb2String.substring(beginIndex, endIndex));
 				break;
 			}
@@ -269,11 +279,9 @@ public class Character {
 		} catch (IOException e){
 		}
 
-		defenseStat = input;
-		return defenseStat;
+		speedStat = input;
+		return speedStat;
 	}
-
-
 
 	public int getEvasiveness(){
 		return evasivenessStat;
@@ -287,7 +295,7 @@ public class Character {
 		int endIndex = sb2String.indexOf(',');
 
 		for(int i = 0; i < numberOfAppearances; i++){
-			if(i == 3){
+			if(i == 4){
 				returnEvasiveness = Integer.parseInt(sb2String.substring(beginIndex, endIndex));
 				break;
 			}
@@ -312,11 +320,40 @@ public class Character {
 		evasivenessStat = input;
 		return evasivenessStat;
 	}
-	
+
 	public int getHealth(){
 		return healthStat;
 	}
+	public int getIOHealth(String characterName) throws IOException{
+		String sb2String = getLineData(getLineNumber(characterName));
+		int numberOfAppearances = getNumberOfAppearances(',', getLineNumber(characterName));
+		int returnHealth = -1;
+
+		int beginIndex = 0;
+		int endIndex = sb2String.indexOf(',');
+
+		for(int i = 0; i < numberOfAppearances; i++){
+			if(i == 5){
+				returnHealth = Integer.parseInt(sb2String.substring(beginIndex, endIndex));
+				break;
+			}
+			if(i != numberOfAppearances){
+				beginIndex = endIndex + 2;
+				endIndex = sb2String.indexOf(",", endIndex + 1);
+			}
+		}
+		return returnHealth;
+	}
 	public int setHealth(int input){
+		healthStat = input;
+		return healthStat;
+	}	
+	public int setIOHealth(int input){
+		try{
+			replace(getName(), 6, Integer.toString(input));
+		} catch (IOException e){
+		}
+
 		healthStat = input;
 		return healthStat;
 	}
@@ -353,31 +390,50 @@ public class Character {
 	}
 
 
-	public void addAttack(Attacks anAttack){ // automatically adds given move to lowest slot
+	public void addAttack(Attacks anAttack) throws IOException{ // automatically adds given move to lowest slot
 
 		boolean added = false;
 		boolean moveExisted = false;
-		for(int i = 0; i < 4; i++){
-			if(attackList[i] != null){
-				if(attackList[i].getName().compareToIgnoreCase(anAttack.getName()) == 0 )
-				{
-					moveExisted = true;
-				}
+
+
+		for(int i = 0; i < getNumberOfAppearances(',', getLineNumber()); i++){
+			String sb2String = getLineData(getLineNumber());
+			int beginIndex = 0;
+			int endIndex = sb2String.indexOf(',');
+
+			//checks to see if attack's name is already in IO
+			if(sb2String.substring(beginIndex, endIndex).trim().compareToIgnoreCase(anAttack.getName()) != 0){
+				beginIndex = endIndex + 2;
+				endIndex = sb2String.indexOf(',', endIndex + 1);
+			} else if (sb2String.substring(beginIndex, endIndex).trim().compareToIgnoreCase(anAttack.getName()) == 0){
+				moveExisted = true; 
 			}
 		}
+
+		for(int i = 0; i < 4; i++){
+			if(attackList[i].getName().compareToIgnoreCase(anAttack.getName()) == 0 )
+			{
+				moveExisted = true;
+			}
+		}
+
 		for(int i = 0; i < 4; i++)
 		{
-			if(attackList[i] == null
+			if(attackList[i].getName().compareToIgnoreCase(new Attacks(7).getName()) == 0
 					&& !added
 					&& !moveExisted)
 			{
 				attackList[i] = anAttack;
+				replace(getName(), (i + 7), Integer.toString(anAttack.getIONumber()));	//bug possible here
+
 				added = true;
-				//System.out.println(i);
+				System.out.println(i);
 				System.out.println("Congratulations!! " +
 						name + " has learned " + anAttack.getName() + "!!!!");	
 			}
 		}
+
+
 		if(!added && !moveExisted)
 		{
 			System.out.println("Could not learn " + anAttack.getName() + ". Moveset full");
@@ -387,88 +443,8 @@ public class Character {
 		{
 			System.out.println(name + " already knows this move!");
 		}
-		/**
-		 * 
-		//new stuff starts here
-		try{
-			BufferedReader reader1 = new BufferedReader(new FileReader ("characterList.txt"));
-			String theLine = null;
-			String sbTemp = null;
-			StringBuffer sb1 = new StringBuffer();
-
-			while((sbTemp = reader1.readLine()) != null){
-				sb1.append(sbTemp);
-				sb1.append("\n");
-
-				//int firstBar = sbTemp.indexOf('|');
-				//String firstSequence = sbTemp.substring(firstBar + 2, sbTemp.indexOf("|", firstBar + 1));
-				int firstComma = sbTemp.indexOf(',');
-				String nameSequence = sbTemp.substring(0, firstComma);
-				//System.out.println(nameSequence);
-				if(nameSequence.compareToIgnoreCase(getName()) == 0){
-					theLine = sbTemp;
-					//System.out.println("desired line is: " + theLine);
-				}
-			}
-
-			int numberBarAppearances = 0;
-			for(int i = 0; i < theLine.length(); i++){
-				if(theLine.charAt(i) == '|'){
-					numberBarAppearances++;
-				}
-			}
-
-			System.out.println(numberBarAppearances);
-
-
-			File inFile = new File("characterList.txt");
-			File tempFile = new File(inFile.getAbsolutePath() + ".tmp");
-
-			BufferedReader reader2 = new BufferedReader(new FileReader("characterList.txt"));
-			PrintWriter writer1 = new PrintWriter(new FileWriter(tempFile));
-
-			String line = null;
-
-			//Read from the original file and write to the new 
-			//unless content matches data to be removed.
-			while ((line = reader2.readLine()) != null) {
-				if (!line.trim().equals(theLine)) {
-					writer1.println(line);
-					writer1.flush();
-					//System.out.println("copied " + line);
-				} else if(line.trim().equals(theLine)){
-					int theSlot = 0;
-					int varSequenceStart = theLine.indexOf('|');
-					int varSequenceEnd = theLine.indexOf('|', varSequenceStart);
-
-					for(int i = 0; i < numberBarAppearances; i++){
-
-						System.out.println(theLine.substring(varSequenceStart, varSequenceEnd));
-						varSequenceStart = varSequenceEnd + 2;
-						varSequenceEnd = theLine.indexOf('|', varSequenceStart + 1);
-
-
-					}
-					writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + "|");
-				}
-			}
-			writer1.close();
-			reader2.close();
-
-			//Delete the original file
-			if (!inFile.delete()) {
-				System.out.println("Could not delete file");
-			}
-			//Rename the new file to the filename the original file had.
-			if (!tempFile.renameTo(inFile))
-				System.out.println("Could not rename file");	
-
-
-		} catch(IOException ex){
-
-		}
-		 **/
 	}
+
 	public void addAttack(Attacks anAttack, int slot){ //tries to add move to given slot, slot = user input
 		if ((slot - 1) < 4){
 			if (attackList[slot] == null){
@@ -481,129 +457,153 @@ public class Character {
 		}
 	}
 
-	public void removeAttack(){
+	public void removeAttack() throws IOException{
 
+		boolean removed = false;
 		String theAttack = null;
+		int i = 0;
 
 		System.out.println("Which move would you like to remove?");
-		for(int i = 0; i < 4; i++){
-			if(attackList[i] != null){
+		for(i = 0; i < 4; i++){
+			if(attackList[i].getName().compareToIgnoreCase(new Attacks(7).getName()) != 0){
 				System.out.println(attackList[i].getName());
 			}
 		}
 
-		JOptionPane removePane = new JOptionPane();
 		JPanel removePanel = new JPanel();
 
-		JTextArea whichAttack = new JTextArea();
+		JTextArea whichAttack = new JTextArea(1,10);
 		removePanel.add(whichAttack);
 
+		JOptionPane removePane = new JOptionPane();
 		int result = removePane.showConfirmDialog(null, removePanel, 
 				"Delete a Move", JOptionPane.OK_CANCEL_OPTION);	
 
 		if(result == JOptionPane.OK_OPTION){
 			theAttack = whichAttack.getText();
+			for(i = 0; i < 4; i++){
+				if(attackList[i].getName().compareToIgnoreCase(theAttack.trim()) == 0){
+					attackList[i] = new Attacks(7);
+					System.out.println("removed " + theAttack);
+					replace(getName(), (i + 7), "7");
+					removed = true;
+					break;
+				}
+			}
+		} else{
+			System.out.println("Nothing was removed");
+			removed = true;
+		}
 
-			for(int i = 0; i < 4; i++){
-				if(attackList[i].getName().compareToIgnoreCase(theAttack) == 0){
-					attackList[i] = null;
+		if (!removed){
+			System.out.println("That move does not exist! Would you still like to delete a move? (type yes or no)");
+			Scanner scan2 = new Scanner(System.in);
+			String input2 = scan2.nextLine().toLowerCase();
+
+			boolean isValid = true;
+
+			while(isValid == true){
+				if(input2.compareToIgnoreCase("yes") == 0){
+					removeAttack();
+					isValid = false;
+					i = 5;
+				}
+				else if(input2.compareToIgnoreCase("no") == 0){
+					isValid = false;
 					i = 5;
 				} else{
-					System.out.println("That move does not exist! Would you still like to delete a move? (type yes or no)");
-					Scanner scan2 = new Scanner(System.in);
-					String input2 = scan2.nextLine().toLowerCase();
-
-					boolean isValid = true;
-
-					while(isValid == true){
-						if(input2.compareToIgnoreCase("yes") == 0){
-							removeAttack();
-							isValid = false;
-							i = 5;
-						}
-						else if(input2.compareToIgnoreCase("no") == 0){
-							isValid = false;
-							i = 5;
-						} else{
-							isValid = true;
-							i = 5;
-						}
-					}	
+					isValid = true;
+					i = 5;
 				}
 			}
 		}
-		/**
-		for(int i = 0; i < 4; i++){
-			if(attackList[i].getName().compareToIgnoreCase(input) == 0){
-				attackList[i] = null;
-				i = 5;
-			} else{
-				System.out.println("That move does not exist! Would you still like to delete a move? (type yes or no)");
-				Scanner scan2 = new Scanner(System.in);
-				String input2 = scan2.nextLine().toLowerCase();
-
-				boolean isValid = true;
-
-				while(isValid == true){
-					if(input2.compareToIgnoreCase("yes") == 0){
-						removeAttack();
-						isValid = false;
-						i = 5;
-					}
-					else if(input2.compareToIgnoreCase("no") == 0){
-						isValid = false;
-						i = 5;
-					} else{
-						isValid = true;
-						i = 5;
-					}
-				}	
-			}
-
-		}**/
 	}
-	public void removeAttack(Attacks replaceAttack){
+	public void removeAttack(Attacks replaceAttack) throws IOException{
+
+		boolean removed = false;
+		String theAttack = null;
+		int i = 0;
 
 		System.out.println("Which move would you like to remove?");
-		for(int i = 0; i < 4; i++){
-			if(attackList[i] != null){
+		for(i = 0; i < 4; i++){
+			if(attackList[i].getName().compareToIgnoreCase(new Attacks(7).getName()) != 0){
 				System.out.println(attackList[i].getName());
 			}
 		}
 
-		Scanner scan = new Scanner(System.in);
-		String input = scan.nextLine().toLowerCase();	
+		JPanel removePanel = new JPanel();
 
-		for(int i = 0; i < 4; i++){
-			if(attackList[i].getName().compareToIgnoreCase(input) == 0){
-				attackList[i] = replaceAttack;
-				i = 5;
-			} else{
-				System.out.println("That move does not exist! Would you still like to delete a move? (type yes or no)");
-				Scanner scan2 = new Scanner(System.in);
-				String input2 = scan2.nextLine().toLowerCase();
+		JTextArea whichAttack = new JTextArea(1,10);
+		removePanel.add(whichAttack);
 
-				boolean isValid = true;
+		JOptionPane removePane = new JOptionPane();
+		int result = removePane.showConfirmDialog(null, removePanel, 
+				"Delete a Move", JOptionPane.OK_CANCEL_OPTION);	
 
-				while(isValid == true){
-					if(input2.compareToIgnoreCase("yes") == 0){
-						removeAttack();
-						isValid = false;
-						i = 5;
-					}
-					else if(input2.compareToIgnoreCase("no") == 0){
-						isValid = false;
-						i = 5;
-					} else{
-						isValid = true;
-						i = 5;
-					}
-				}	
+		if(result == JOptionPane.OK_OPTION){
+			theAttack = whichAttack.getText();
+			for(i = 0; i < 4; i++){
+				if(attackList[i].getName().compareToIgnoreCase(theAttack.trim()) == 0){
+					attackList[i] = new Attacks(7);
+					System.out.println("removed " + theAttack);
+					replace(getName(), (i + 7), Integer.toString(replaceAttack.getIONumber()));
+					removed = true;
+					break;
+				}
+			}
+		} else{
+			System.out.println("Nothing was removed");
+			removed = true;
+		}
+
+		if (!removed){
+			System.out.println("That move does not exist! Would you still like to delete a move? (type yes or no)");
+			Scanner scan2 = new Scanner(System.in);
+			String input2 = scan2.nextLine().toLowerCase();
+
+			boolean isValid = true;
+
+			while(isValid == true){
+				if(input2.compareToIgnoreCase("yes") == 0){
+					removeAttack();
+					isValid = false;
+					i = 5;
+				}
+				else if(input2.compareToIgnoreCase("no") == 0){
+					isValid = false;
+					i = 5;
+				} else{
+					isValid = true;
+					i = 5;
+				}
 			}
 		}
 	}
 
-	public String levelUp()
+
+	public int getMoveNumber(String characterName, int slot) throws IOException{//returns the line number of the move
+		String sb2String = getLineData(getLineNumber(characterName));
+		int numberOfAppearances = getNumberOfAppearances(',', getLineNumber(characterName));
+		int moveNumber = 7;
+
+		int beginIndex = 0;
+		int endIndex = sb2String.indexOf(',');
+
+		for(int i = 0; i < numberOfAppearances; i++){
+			if(i == slot + 6){
+				moveNumber = Integer.parseInt(sb2String.substring(beginIndex, endIndex));
+				break;
+			}
+			if(i != numberOfAppearances){
+				beginIndex = endIndex + 2;
+				endIndex = sb2String.indexOf(",", endIndex + 1);
+			} 
+		}
+		return moveNumber;
+
+	}
+
+	public String levelUp() throws IOException
 	{
 		attackStat = attackStat + 3;
 		defenseStat = defenseStat + 3;
@@ -642,7 +642,7 @@ public class Character {
 		g.setColor(color);
 		g.drawOval(25, 2, 50, 50);
 		g.fillOval(25, 2, 50, 50);
-	
+
 	}
 
 	//reads from characterList, does not set any stats
@@ -806,7 +806,7 @@ public class Character {
 			tempDefense = Integer.parseInt(defenseSelect.getText());
 			tempSpeed = Integer.parseInt(speedSelect.getText());
 			try{
-				outputStream.println(tempName + ", " + tempAttack + ", " + tempDefense + ", " + tempSpeed + ", " + evasivenessStat + ", " + healthStat + ",");
+				outputStream.println(tempName + ", " + tempAttack + ", " + tempDefense + ", " + tempSpeed + ", " + evasivenessStat + ", " + healthStat + ", " + attackList[0].getIONumber() + ", "  + attackList[1].getIONumber() + ", "  + attackList[2].getIONumber() + ", "  + attackList[3].getIONumber() + "," );
 				setName(tempName);
 				setAttack(tempAttack);
 				setDefense(tempDefense);
@@ -1020,6 +1020,22 @@ public class Character {
 		}
 		return k;
 	}
+	public String getLineData(int k) throws IOException{
+		BufferedReader reader2 = new BufferedReader(
+				new FileReader("characterList.txt"));
+		StringBuffer sb2 = new StringBuffer();	//only has desired line info
+		String input = null;
+		for(int i = 1; i < k; i++){
+			reader2.readLine();		//runs through the document, throwing away undesired lines
+		}
+		input = reader2.readLine();	//reads desired line
+		sb2.append(input);
+		//System.out.println(input);
+
+		String sb2String = sb2.toString();
+		//System.out.println(sb2String);
+		return sb2String;
+	}
 
 	public int getNumberOfAppearances(char desiredCharacter, int theLine) throws IOException{
 
@@ -1050,23 +1066,6 @@ public class Character {
 		return numberOfAppearances;
 	}
 
-	public String getLineData(int k) throws IOException{
-		BufferedReader reader2 = new BufferedReader(
-				new FileReader("characterList.txt"));
-		StringBuffer sb2 = new StringBuffer();	//only has desired line info
-		String input = null;
-		for(int i = 1; i < k; i++){
-			reader2.readLine();		//runs through the document, throwing away undesired lines
-		}
-		input = reader2.readLine();	//reads desired line
-		sb2.append(input);
-		//System.out.println(input);
-
-		String sb2String = sb2.toString();
-		//System.out.println(sb2String);
-		return sb2String;
-	}
-
 	public void replace(String targetName, int targetChunk, String input) throws IOException{
 		String sb2String = getLineData(getLineNumber(targetName));
 
@@ -1085,35 +1084,50 @@ public class Character {
 			if (!line.trim().equals(sb2String)) {
 				writer1.println(line);
 				writer1.flush();
-				System.out.println("copied");
+				//System.out.println("copied");
 			}
 
-			if(line.trim().equals(sb2String) && targetChunk == 1){
-				writer1.println(input + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + "," + getEvasiveness() + ", " + getHealth() + ",");
+			if(line.trim().equals(sb2String) && targetChunk == 1){	//name
+				writer1.println(input + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + "," + getEvasiveness() + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ",");
 				System.out.println("setting name...");
-				System.out.println("new data: " + input + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ",");
 				name = input;
-			} else if(line.trim().equals(sb2String) && targetChunk == 2){
-				writer1.println(getName() + ", " + Integer.parseInt(input) + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ",");
+			} else if(line.trim().equals(sb2String) && targetChunk == 2){	//attack
+				writer1.println(getName() + ", " + Integer.parseInt(input) + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ",");
 				System.out.println("setting attack...");
-				System.out.println("new data: " + getName() + ", " + Integer.parseInt(input) + ", " + getDefense() + ", " + getSpeed() + "," + getEvasiveness() + ", " + getHealth() + ",");
 				attackStat = Integer.parseInt(input);
-			} else if(line.trim().equals(sb2String) && targetChunk == 3){
-				writer1.println(getName() + ", " + getAttack() + ", " + Integer.parseInt(input) + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ",");
+			} else if(line.trim().equals(sb2String) && targetChunk == 3){	//defense
+				writer1.println(getName() + ", " + getAttack() + ", " + Integer.parseInt(input) + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ",");
 				System.out.println("setting defense...");
-				System.out.println("new data: " + getName() + ", " + getAttack() + ", " + Integer.parseInt(input) + ", " + getSpeed() + "," + getEvasiveness() + ", " + getHealth() + ",");
 				defenseStat = Integer.parseInt(input);
-			} else if(line.trim().equals(sb2String) && targetChunk == 4){
-				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + Integer.parseInt(input) + ", " + getEvasiveness() + ", " + getHealth() + ",");
+			} else if(line.trim().equals(sb2String) && targetChunk == 4){	//speed
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + Integer.parseInt(input) + ", " + getEvasiveness() + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ",");
 				System.out.println("setting speed...");
-				System.out.println("new data: " + getName() + ", " + getAttack() + ", " + getDefense() + ", " + Integer.parseInt(input) + ", " + getEvasiveness() + ", " + getHealth() + ",");
 				speedStat = Integer.parseInt(input);
-			} else if(line.trim().equals(sb2String) && targetChunk == 5){
-				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + Integer.parseInt(input) + ", " + getHealth() + ",");
+			} else if(line.trim().equals(sb2String) && targetChunk == 5){	//evasiveness
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + Integer.parseInt(input) + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ",");
 				System.out.println("setting speed...");
-				System.out.println("new data: " + getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + Integer.parseInt(input) + ", " + getHealth() + ",");
 				speedStat = Integer.parseInt(input);
-			}
+			} else if(line.trim().equals(sb2String) && targetChunk == 6){	//health
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + Integer.parseInt(input) + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ",");
+				System.out.println("setting speed...");
+				speedStat = Integer.parseInt(input);
+			} else if(line.trim().equals(sb2String) && targetChunk == 7){	//attack1
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", " + Integer.parseInt(input) + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ",");
+				System.out.println("setting attack 1...");
+				speedStat = Integer.parseInt(input);
+			} else if(line.trim().equals(sb2String) && targetChunk == 8){	//attack2
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + Integer.parseInt(input) + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ",");
+				System.out.println("setting attack 2...");
+				speedStat = Integer.parseInt(input);
+			} else if(line.trim().equals(sb2String) && targetChunk == 9){	//attack3
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + Integer.parseInt(input) + ", " + attackList[3].getIONumber() + ",");
+				System.out.println("setting attack 3...");
+				speedStat = Integer.parseInt(input);
+			} else if(line.trim().equals(sb2String) && targetChunk == 10){	//attack4
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + Integer.parseInt(input) + ",");
+				System.out.println("setting attack 4...");
+				speedStat = Integer.parseInt(input);
+			} 
 
 		}
 		writer1.close();
@@ -1127,7 +1141,6 @@ public class Character {
 		if (!tempFile.renameTo(inFile))
 			System.out.println("Could not rename file");	
 	}
-
 
 	public class upAttackListener implements ActionListener{
 		public void actionPerformed(ActionEvent arg0) {
@@ -1198,6 +1211,8 @@ public class Character {
 		}
 	}
 }
+
+
 
 
 

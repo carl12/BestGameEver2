@@ -309,14 +309,8 @@ public class ArenaFrame extends JFrame
          }
       }
    }
-   public void battle()
+   public void battle() throws IOException
    {
-
-
-
-
-
-
       if(onesTurn)
       {
          attackOther(arena.one, arena.two);
@@ -389,7 +383,12 @@ public class ArenaFrame extends JFrame
       public void actionPerformed(ActionEvent arg0){
          if(!gameEnded)
          {
-            battle();
+            try {
+				battle();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
          }
          repaint();
@@ -464,6 +463,7 @@ public class ArenaFrame extends JFrame
          }
       }
    }
+  
    public static void main(String[] args) throws IOException
    {
       ArenaFrame frame = new ArenaFrame();
