@@ -34,13 +34,13 @@ public class Attacks {
 	}
 	/** 
 	 * full constructor for attack
-	 * @param nameIn
-	 * @param strengthIn
-	 * @param lifestealIn
-	 * @param criticalChanceIn
-	 * @param criticalDamageIn
-	 * @param actionCostIn
-	 * @param cooldownIn
+	 * @param nameIn -name
+	 * @param strengthIn -base damage of attack
+	 * @param lifestealIn - decimal of damage healed
+	 * @param criticalChanceIn - decimal of critical chance (0-1)
+	 * @param criticalDamageIn - multiplier of critical damage
+	 * @param actionCostIn - action point cost
+	 * @param cooldownIn - cooldown
 	 */
 	public Attacks(String nameIn, int strengthIn, double lifestealIn, double criticalChanceIn, 
 			double criticalDamageIn,int actionCostIn,  int cooldownIn)
@@ -123,12 +123,13 @@ public class Attacks {
 	/**
 	 * This class asks the attack to use an attack
 	 * if it is off cooldown, it returns the damage 
-	 * otherwise, it returns 0.
+	 * (after defenses of enemy)
+	 * otherwise, it returns -1.
 	 * @return damage the damage dealt
 	 */
-	public int useAttack()
+	public int useAttack(Character other)
 	{
-		int damage = 0;
+		int damage = -1;
 		if(currentCooldown == 0)
 		{
 			currentCooldown = cooldown;
@@ -140,8 +141,12 @@ public class Attacks {
 			{
 				damage = strength;
 			}
+			return other.attack(damage);
 		}
-		return damage;
+		else
+		{
+		   return -1;
+		}
 	}
 	public void turn()
 	{
@@ -151,7 +156,7 @@ public class Attacks {
 	 * this method does the attack ignoring cooldowns
 	 * @return damage
 	 */
-	public int doAttack()
+	public int attackIgnoreCooldown()
 	{
 		int damage = 0;
 		currentCooldown = cooldown;
@@ -166,6 +171,7 @@ public class Attacks {
 		return damage;
 	}
 
+	
 	public int getStrength(){
 		return strength;
 	}

@@ -4,16 +4,16 @@
  *
  */
 public class AttackItem extends Item{
-   Attacks myItem;
+   Attacks myAttack;
    public AttackItem(int speedChange, double defenseIn, int healthIn, Attacks attackIn) 
    {
       super(speedChange, defenseIn, healthIn);
-      myItem = attackIn;
+      myAttack = attackIn;
    }
 
    public Attacks getAttack()
    {
-      return myItem;
+      return myAttack;
    }
 
 
