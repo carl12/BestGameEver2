@@ -195,10 +195,16 @@ public class ArenaFrame extends JFrame
     */
    private void nextTurn()
    {
+      double streakEnder;
+      int[] currentStreak = new int[2];
+      double streakConstant = 2;
       int randTurn;
       if(roundNumber == 0 || turns.size() == 0)
       {
+         streakEnder = (arena.one.getSpeed() + 0.0)/(arena.two.getSpeed() + 0.0);
+         ArrayList<Integer> temp = new ArrayList<Integer>();
          speedTotal = arena.one.getSpeed() + arena.two.getSpeed();
+         int currentSpeed = speedTotal;
          rand = new Random();
 
          turns = new ArrayList<Integer>();
@@ -206,22 +212,80 @@ public class ArenaFrame extends JFrame
          {
             if(i < arena.one.getSpeed())
             {
+               temp.add(1);
+            }
+            else
+            {
+               
+               temp.add(2);
+            }
+         } 
+         System.out.println(temp);
+         
+         for(int i = 0; i < speedTotal; i++)
+         {
+            
+            randTurn = rand.nextInt(currentSpeed);
+            
+            if(currentStreak[0] == 1 && currentStreak[1] >= streakConstant*streakEnder && temp.get(temp.size()-1) ==2)
+            {
+               System.out.println("streak1");
+               System.out.println(turns);
+               currentStreak[0] = 2;
+               currentStreak[1]=1;
+               turns.add(2);
+               temp.remove(temp.size()-1);
+            }
+            else if(currentStreak[0] == 2 && currentStreak[1] >= streakConstant/(streakEnder)&& temp.get(0) ==1)
+            {
+               System.out.println("streak2");
+               System.out.println(turns);
+               currentStreak[0] = 1;
+               currentStreak[1]=1;
+               turns.add(1);
+               temp.remove(0);
+            }
+            else if(temp.remove(randTurn) == 1)
+            {
+               if(currentStreak[0] == 1)
+               {
+                  currentStreak[1]++;
+               }
+               else
+               {
+                  currentStreak[1] = 1;
+               }
+               currentStreak[0] =1;
                turns.add(1);
             }
             else
             {
+               if(currentStreak[0] == 2)
+               {
+                  currentStreak[1]++;
+               }
+               else
+               {
+                  currentStreak[1] = 1;
+               }
+               currentStreak[0] = 2;
+               
                turns.add(2);
             }
-         } 
-        // System.out.println(turns +" is turns");
-         
+            
+            currentSpeed--;
+            System.out.println(currentStreak[1] + " is streak");
+         }
+         System.out.println(turns +" is turns");
+        
 
       }
       
       randTurn = rand.nextInt(speedTotal);
       //System.out.println("random is " + randTurn);
       //System.out.println(turns.get(randTurn));
-      if(turns.get(randTurn) == 1)
+      
+      if(turns.remove(0) == 1)
       {
          onesTurn = true;
       }
@@ -229,8 +293,8 @@ public class ArenaFrame extends JFrame
       {
          onesTurn = false;
       }
-      turns.remove(randTurn);
-      speedTotal--;
+     
+      
       roundNumber++;
       //System.out.println(turns + " after remove");
    }
