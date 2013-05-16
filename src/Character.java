@@ -48,8 +48,8 @@ public class Character {
    private int defenseStat;
    private int speedStat;
    private int evasivenessStat; // will implement random number generator for probability of hit
-   private int permaHealthStat; // max health a character has
-   private int healthStat;
+   int permaHealthStat; // max health a character has
+   int healthStat;
 
    private boolean isDead;
 

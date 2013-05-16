@@ -42,7 +42,7 @@ public class ArenaFrame extends JFrame
    LeftButtonListener leftListener;
 
    JPanel inputPanel;
-   JPanel statsPanel;
+   JPanel movePanel;
    JPanel menuPanel;
    JPanel arenaPanel;
    JTextField attackField;
@@ -52,6 +52,7 @@ public class ArenaFrame extends JFrame
    JLabel blank1, blank2, blank3, blank4, blank5, blank6, blank7; // To fill in the blanks for the directional buttons
    JLabel enterStartLabel, restartLabel, attackOneLabel, attackTwoLabel;
    JPanel oneAttackPanel, oneItemPanel, twoAttackPanel, twoItemPanel;
+   HealthPanel healthPanel1, healthPanel2;
    JButton attack11, attack12, attack13, attack14, item11, item12, item13, attack21, attack22, attack23, attack24, item21, item22, item23;
    JButton oneAttackButtons[] = new JButton[4];
    JButton oneItemButtons[] = new JButton[3];
@@ -107,9 +108,11 @@ public class ArenaFrame extends JFrame
       blank5 = new JLabel();
       blank6 = new JLabel("                                                                                                                                                                      ");
       blank7 = new JLabel("                                                                                                                                                                      ");
-
+      healthPanel1 = new HealthPanel(arena.one);
+      healthPanel2 = new HealthPanel(arena.two);
+      
       inputPanel = new JPanel();
-      statsPanel = new JPanel(new BorderLayout());
+      movePanel = new JPanel(new BorderLayout());
       menuPanel = new JPanel();
       arenaPanel = new JPanel(new BorderLayout());
       oneAttackPanel = new JPanel();
@@ -152,31 +155,33 @@ public class ArenaFrame extends JFrame
       twoItemPanel.add(item23);
       twoAttackPanel.add(attack24);
 
-      // making d-pad
-      dPad.add(blank1);
-      dPad.add(upButton);
-      upButton.addActionListener(upListener);
-      dPad.add(blank2);
-      dPad.add(leftButton);
-      leftButton.addActionListener(leftListener);
-      dPad.add(blank3);
-      dPad.add(rightButton);
-      rightButton.addActionListener(rightListener);
-      dPad.add(blank4);
-      dPad.add(downButton);
-      downButton.addActionListener(downListener);
-      dPad.add(blank5);
-      dPadPanel.setLayout(new BorderLayout());
-      dPadPanel.add(blank6, BorderLayout.WEST);
-      dPadPanel.add(dPad, BorderLayout.CENTER);
-      dPadPanel.add(blank7, BorderLayout.EAST);
+		dPad.add(blank1);
+		dPad.add(upButton);
+		upButton.addActionListener(upListener);
+		dPad.add(blank2);
+		dPad.add(leftButton);
+		leftButton.addActionListener(leftListener);
+		dPad.add(blank3);
+		dPad.add(rightButton);
+		rightButton.addActionListener(rightListener);
+		dPad.add(blank4);
+		dPad.add(downButton);
+		downButton.addActionListener(downListener);
+		dPad.add(blank5);
+		healthPanel1.add(blank6);
+		healthPanel2.add(blank7);
+		//dPadPanel.setLayout(null);
+		dPadPanel.add(healthPanel1);
+		dPadPanel.add(dPad);
+		dPadPanel.add(healthPanel2);
+
 
       inputPanel.add(enterStartLabel);
       inputPanel.add(startButton);
-      statsPanel.add(inputPanel, BorderLayout.NORTH);
-      statsPanel.add(dPadPanel, BorderLayout.SOUTH);
+      movePanel.add(inputPanel, BorderLayout.NORTH);
+      movePanel.add(dPadPanel, BorderLayout.SOUTH);
       menuPanel.setLayout(new BorderLayout());
-      menuPanel.add(statsPanel, BorderLayout.NORTH);
+      menuPanel.add(movePanel, BorderLayout.NORTH);
       menuPanel.add(scroll, BorderLayout.SOUTH);
       //arena.add(startButton);
       startButton.addActionListener(startListener);
@@ -351,7 +356,6 @@ public class ArenaFrame extends JFrame
                   boolean criticalHit = attacker.attackList[i].doDamage(attacker, victim);
                   if(criticalHit)
                   {
-                     System.out.println(attacker.attackList[i].doDamage(attacker, victim));
                      history.append("EHMERGAAAAD CRITICAL HIT \n");
                   }
                }
