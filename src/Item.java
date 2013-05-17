@@ -1,75 +1,66 @@
 
 public class Item {
 
-    private int duration;
-    private int modifier;
-    private String status;
-    
-    private int speedModifier;
-    private double defense;
-    private double otherstats;
-    
-    private int health;
-    
-   
+	private int duration;
+	private int modifier;
+	private String status;
 
-    public Item(int speedChange, double defenseIn, int healthIn)
-    {
-       defense = defenseIn;
-       health = healthIn;
-       speedModifier = speedChange;
-       
-       
-    }
-    public int getSpeed()
-    {
-      return speedModifier;
-       
-    }
-    public double getDefense()
-    {
-       return defense;
-    }
-    public int getHealth()
-    {
-       return health;
-    }
-    public Item(int aDuration, int aModifier, String description)
+	private int speedModifier;
+	private int defenseModifier;
+	private int otherStatsModifier;
 
-    {
+	private int healthModifier;
 
-        duration = aDuration;
+	public Item(int speedChange, int defenseIn, int healthIn)
+	{
+		defenseModifier = defenseIn;
+		healthModifier = healthIn;
+		speedModifier = speedChange;
+	}
+	
+	public Item(int aDuration, int aModifier, String description)
+	{
+		duration = aDuration;
+		modifier = aModifier;
+		status = description;
+	}
+	
+	public int getSpeed()
+	{
+		return speedModifier;
+	}
+	
+	public int getDefense()
+	{
+		return defenseModifier;
+	}
+	
+	public int getHealth()
+	{
+		return healthModifier;
+	}
 
-        modifier = aModifier;
+	public int getDuration()
+	{
+		return duration;
+	}
 
-        status = description;
+	public int getModifier()
+	{
+		return modifier;
+	}
 
-    }
-
-    public int getDuration()
-
-    {
-
-        return duration;
-
-    }
-
-    public int getModifier()
-
-    {
-
-        return modifier;
-
-    }
-
-    public String getDescription()
-
-    {
-
-        return status;
-
-    }
-
+	public String getDescription()
+	{
+		return status;
+	}
+	
+	public void statChanger(Character theCharacter){
+		theCharacter.setSpeed(theCharacter.getSpeed() + speedModifier);
+		theCharacter.setDefense(theCharacter.getDefense() + defenseModifier);
+		theCharacter.setHealth(theCharacter.getHealth() + healthModifier);
+		System.out.println("stats modified");
+	}
 }
 
 

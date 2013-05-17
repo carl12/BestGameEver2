@@ -4,8 +4,10 @@
  *
  */
 public class AttackItem extends Item{
-   Attacks myAttack;
-   public AttackItem(int speedChange, double defenseIn, int healthIn, Attacks attackIn) 
+   
+	Attacks myAttack;
+   
+   public AttackItem(int speedChange, int defenseIn, int healthIn, Attacks attackIn) 
    {
       super(speedChange, defenseIn, healthIn);
       myAttack = attackIn;
@@ -15,7 +17,4 @@ public class AttackItem extends Item{
    {
       return myAttack;
    }
-
-
-
 } 
