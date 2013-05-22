@@ -9,6 +9,7 @@
  * BUG NOTES:
  * lp: add catches for things such as cancel under writeCharacter, etc.  
  * hp: stats and attacks are added to the first character when character specified does not exist
+ * hp: adding Items to preexisting characters does not work properly
  */
 
 /**
@@ -56,6 +57,7 @@ public class Character {
 	private int experienceBar;
 	private int level;
 	Attacks attackList[] = new Attacks[4];
+	Item itemList[] = new Item[4];
 
 	private int tempAttack = 0;
 	private int tempDefense = 0;
@@ -87,6 +89,9 @@ public class Character {
 		for(int i = 0; i < 4; i++){
 			attackList[i] = new Attacks(getMoveNumber(getName(), i));
 		}
+		for(int i = 0; i < 4; i++){
+			itemList[i] = new Item("default");
+		}
 		setExperience(getIOExperience(characterName));
 		setExperienceBar(getIOExperienceBar(characterName));
 	}
@@ -103,9 +108,12 @@ public class Character {
 		for(int i = 0; i < 4; i++){
 			attackList[i] = new Attacks(7);
 		}
+		
+		for(int i = 0; i < 4; i++){
+			itemList[i] = new Item("default");
+		}
 
 		writeCharacter();
-		//System.out.println("default created");
 	}
 
 	public Character(int anX, int anY, Color color) throws IOException{
@@ -120,6 +128,10 @@ public class Character {
 			attackList[i] = new Attacks(7);
 		}
 
+		for(int i = 0; i < 4; i++){
+			itemList[i] = new Item("default");
+		}
+		
 		this.color = color;
 		x = anX;
 		y = anY;
@@ -475,7 +487,6 @@ public class Character {
 		return level;
 	}
 
-
 	public void fullHeal()
 	{
 		healthStat = permaHealthStat;
@@ -535,7 +546,6 @@ public class Character {
 			System.out.println(name + " already knows this move!");
 		}
 	}
-
 	public void addAttack(Attacks anAttack, int slot){ //tries to add move to given slot, slot = user input
 		if ((slot - 1) < 4){
 			if (attackList[slot] == null){
@@ -547,7 +557,6 @@ public class Character {
 			}
 		}
 	}
-
 	public void removeAttack() throws IOException{
 
 		boolean removed = false;
@@ -671,6 +680,131 @@ public class Character {
 		}
 	}
 
+	public void addItem(Item anItem) throws IOException{
+		boolean isAdded = false;
+		boolean itemExisted = false;
+		
+		for(int i = 0; i < getNumberOfAppearances(',', getLineNumber()); i++){
+			String sb2String = getLineData(getLineNumber());
+			int beginIndex = 0;
+			int endIndex = sb2String.indexOf(',');
+
+			//checks to see if item's name is already in IO
+			if(sb2String.substring(beginIndex, endIndex).trim().compareToIgnoreCase(anItem.getName()) != 0){
+				beginIndex = endIndex + 2;
+				endIndex = sb2String.indexOf(',', endIndex + 1);
+			} else if (sb2String.substring(beginIndex, endIndex).trim().compareToIgnoreCase(anItem.getName()) == 0){
+				itemExisted = true; 
+			}
+		}
+		
+		for(int i = 0; i < 4; i++){
+			if(itemList[i].getName().compareToIgnoreCase(anItem.getName()) == 0 )
+			{
+				itemExisted = true;
+			}
+		}
+		
+		for(int i = 0; i < 4; i++)
+		{
+			if(itemList[i].getName().compareToIgnoreCase(new Attacks(7).getName()) == 0
+					&& !isAdded
+					&& !itemExisted)
+			{
+				itemList[i] = anItem;
+				replace(getName(), (i + 14), anItem.getName());	//bug possible here
+
+				isAdded = true;
+				System.out.println(i);
+				System.out.println("Congratulations!! " +
+						name + " has acquired " + anItem.getName() + "!!!!");	
+			}
+		}
+		
+		if(!isAdded && !itemExisted)
+		{
+			System.out.println("Could not learn " + anItem.getName() + ". Moveset full");
+			removeItem();
+		}
+		else if(itemExisted)
+		{
+			System.out.println(name + " already has this item!");
+		}
+	}
+	public void removeItem() throws IOException{
+		boolean removed = false;
+		String theItem = null;
+		int i = 0;
+
+		System.out.println("Which item would you like to remove?");
+		for(i = 0; i < 4; i++){
+			if(itemList[i].getName().compareToIgnoreCase(new Item("default").getName()) != 0){
+				System.out.println(itemList[i].getName());
+			}
+		}
+		
+		JPanel removePanel = new JPanel();
+
+		JTextArea whichItem = new JTextArea(1,10);
+		removePanel.add(whichItem);
+
+		JOptionPane removePane = new JOptionPane();
+		int result = removePane.showConfirmDialog(null, removePanel, 
+				"Remove an Item", JOptionPane.OK_CANCEL_OPTION);	
+		
+		if(result == JOptionPane.OK_OPTION){
+			theItem = whichItem.getText();
+			for(i = 0; i < 4; i++){
+				if(itemList[i].getName().compareToIgnoreCase(theItem.trim()) == 0){
+					itemList[i] = new Item("default");
+					System.out.println("removed " + theItem);
+					replace(getName(), (i + 14), "default");
+					removed = true;
+					break;
+				}
+			}
+		} else{
+			System.out.println("Nothing was removed");
+			removed = true;
+		}
+		
+		if (!removed){
+			System.out.println("That item does not exist! Would you still like to remove an item? (type yes or no)");
+			Scanner scan2 = new Scanner(System.in);
+			String input2 = scan2.nextLine().toLowerCase();
+
+			boolean isValid = true;
+
+			while(isValid == true){
+				if(input2.compareToIgnoreCase("yes") == 0){
+					removeItem();
+					isValid = false;
+					break;
+				}
+				else if(input2.compareToIgnoreCase("no") == 0){
+					isValid = false;
+					break;
+				} else{
+					isValid = true;
+					break;
+				}
+			}
+		}
+	}
+
+	public void removeItem(Item anItem) throws IOException{
+		boolean removed = false;
+		for(int i = 0; i < 4; i++){
+			if(itemList[i].getName().compareToIgnoreCase(anItem.getName()) == 0){
+				itemList[i] = new Item("default");
+				removed = true;
+			}
+		}
+		if(removed == false){
+			System.out.println("The item you'd like to remove isn't there!");
+		}
+	}
+	
 	public int attack(int damage)
 	{
 		if(damage >= 0)
@@ -697,7 +831,7 @@ public class Character {
 		isDead = true;
 		return isDead;
 	}
-
+	
 	public int getMoveNumber(String characterName, int slot) throws IOException{//returns the line number of the move
 		String sb2String = getLineData(getLineNumber(characterName));
 		int numberOfAppearances = getNumberOfAppearances(',', getLineNumber(characterName));
@@ -922,7 +1056,10 @@ public class Character {
 			tempDefense = Integer.parseInt(defenseSelect.getText());
 			tempSpeed = Integer.parseInt(speedSelect.getText());
 			try{
-				outputStream.println(tempName + ", " + tempAttack + ", " + tempDefense + ", " + tempSpeed + ", " + evasivenessStat + ", " + healthStat + ", " + attackList[0].getIONumber() + ", "  + attackList[1].getIONumber() + ", "  + attackList[2].getIONumber() + ", "  + attackList[3].getIONumber() + ", " + experienceStat + ", " + experienceBar + ", " + level + ",");
+				outputStream.println(tempName + ", " + tempAttack + ", " + tempDefense + ", " + tempSpeed + ", " + evasivenessStat + ", " + healthStat + ", " + attackList[0].getIONumber() + ", "  + 
+						attackList[1].getIONumber() + ", "  + attackList[2].getIONumber() + ", "  + attackList[3].getIONumber() + ", "
+						+ experienceStat + ", " + experienceBar + ", " + level + ", " +
+						itemList[0].getLine(itemList[0].getName()) + ", " + itemList[1].getLine(itemList[1].getName()) + ", " + itemList[2].getLine(itemList[2].getName()) + ", " + itemList[3].getLine(itemList[3].getName()) + ",");
 				setName(tempName);
 				setAttack(tempAttack);
 				setDefense(tempDefense);
@@ -1204,59 +1341,125 @@ public class Character {
 			}
 
 			if(line.trim().equals(sb2String) && targetChunk == 1){	//name
-				writer1.println(input + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + "," + getEvasiveness() + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", " + getExperience() + ", " + getExperienceBar() +  ", " + getLevel() + ",");
+				writer1.println(input + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + "," + getEvasiveness() + ", " + getHealth() + ", "
+						+ attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", "
+						+ getExperience() + ", " + getExperienceBar() +  ", " + getLevel() + ", "
+						+ itemList[0].getName() + ", " + itemList[1].getName() + ", " + itemList[2].getName() + ", " + itemList[3].getName() + ",");
 				System.out.println("setting name...");
 				name = input;
 			} else if(line.trim().equals(sb2String) && targetChunk == 2){	//attack
-				writer1.println(getName() + ", " + Integer.parseInt(input) + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", " + getExperience() + ", " + getExperienceBar() +  ", " + getLevel() + ",");
+				writer1.println(getName() + ", " + Integer.parseInt(input) + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", "
+						+ attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", "
+						+ getExperience() + ", " + getExperienceBar() +  ", " + getLevel() + ", "
+						+ itemList[0].getName() + ", " + itemList[1].getName() + ", " + itemList[2].getName() + ", " + itemList[3].getName() + ",");
 				System.out.println("setting attack...");
 				attackStat = Integer.parseInt(input);
 			} else if(line.trim().equals(sb2String) && targetChunk == 3){	//defense
-				writer1.println(getName() + ", " + getAttack() + ", " + Integer.parseInt(input) + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", " + getExperience() + ", " + getExperienceBar() +  ", " + getLevel() + ",");
+				writer1.println(getName() + ", " + getAttack() + ", " + Integer.parseInt(input) + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", "
+						+ attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", "
+						+ getExperience() + ", " + getExperienceBar() +  ", " + getLevel() + ", "
+						+ itemList[0].getName() + ", " + itemList[1].getName() + ", " + itemList[2].getName() + ", " + itemList[3].getName() + ",");
 				System.out.println("setting defense...");
 				defenseStat = Integer.parseInt(input);
 			} else if(line.trim().equals(sb2String) && targetChunk == 4){	//speed
-				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + Integer.parseInt(input) + ", " + getEvasiveness() + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", " + getExperience() + ", " + getExperienceBar() +  ", " + getLevel() + ",");
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + Integer.parseInt(input) + ", " + getEvasiveness() + ", " + getHealth() + ", "
+						+ attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", "
+						+ getExperience() + ", " + getExperienceBar() +  ", " + getLevel() + ", "
+						+ itemList[0].getName() + ", " + itemList[1].getName() + ", " + itemList[2].getName() + ", " + itemList[3].getName() + ",");
 				System.out.println("setting speed...");
 				speedStat = Integer.parseInt(input);
 			} else if(line.trim().equals(sb2String) && targetChunk == 5){	//evasiveness
-				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + Integer.parseInt(input) + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", " + getExperience() + ", " + getExperienceBar() +  ", " + getLevel() + ",");
-				System.out.println("setting speed...");
-				speedStat = Integer.parseInt(input);
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + Integer.parseInt(input) + ", " + getHealth() + ", "
+						+ attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", "
+						+ getExperience() + ", " + getExperienceBar() +  ", " + getLevel() + ", "
+						+ itemList[0].getName() + ", " + itemList[1].getName() + ", " + itemList[2].getName() + ", " + itemList[3].getName() + ",");
+				System.out.println("setting evasiveness...");
+				evasivenessStat = Integer.parseInt(input);
 			} else if(line.trim().equals(sb2String) && targetChunk == 6){	//health
-				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + Integer.parseInt(input) + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", " + getExperience() + ", " + getExperienceBar() + ", " + getLevel() + ",");
-				System.out.println("setting speed...");
-				speedStat = Integer.parseInt(input);
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + Integer.parseInt(input) + ", "
+						+ attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", "
+						+ getExperience() + ", " + getExperienceBar() + ", " + getLevel() + ", "
+						+ itemList[0].getName() + ", " + itemList[1].getName() + ", " + itemList[2].getName() + ", " + itemList[3].getName() + ",");
+				System.out.println("setting health...");
+				healthStat = Integer.parseInt(input);
 			} else if(line.trim().equals(sb2String) && targetChunk == 7){	//attack1
-				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", " + Integer.parseInt(input) + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", " + getExperience() + ", " + getExperienceBar() + ", " + getLevel() + ",");
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", "
+						+ Integer.parseInt(input) + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", "
+						+ getExperience() + ", " + getExperienceBar() + ", " + getLevel() + ", "
+						+ itemList[0].getName() + ", " + itemList[1].getName() + ", " + itemList[2].getName() + ", " + itemList[3].getName() + ",");
 				System.out.println("setting attack 1...");
-				speedStat = Integer.parseInt(input);
+				attackList[0] = new Attacks(Integer.parseInt(input));
 			} else if(line.trim().equals(sb2String) && targetChunk == 8){	//attack2
-				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + Integer.parseInt(input) + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", " + getExperience() + ", " + getExperienceBar() + ", " + getLevel() + ",");
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", "
+						+ attackList[0].getIONumber() + ", " + Integer.parseInt(input) + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", "
+						+ getExperience() + ", " + getExperienceBar() + ", " + getLevel() + ", "
+						+ itemList[0].getName() + ", " + itemList[1].getName() + ", " + itemList[2].getName() + ", " + itemList[3].getName() + ",");
 				System.out.println("setting attack 2...");
-				speedStat = Integer.parseInt(input);
+				attackList[1] = new Attacks(Integer.parseInt(input));
 			} else if(line.trim().equals(sb2String) && targetChunk == 9){	//attack3
-				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + Integer.parseInt(input) + ", " + attackList[3].getIONumber() + ", " + getExperience() + ", " + getExperienceBar() + ", " + getLevel() + ",");
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", "
+						+ attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + Integer.parseInt(input) + ", " + attackList[3].getIONumber() + ", "
+						+ getExperience() + ", " + getExperienceBar() + ", " + getLevel() + ", "
+						+ itemList[0].getName() + ", " + itemList[1].getName() + ", " + itemList[2].getName() + ", " + itemList[3].getName() + ",");
 				System.out.println("setting attack 3...");
-				speedStat = Integer.parseInt(input);
+				attackList[2] = new Attacks(Integer.parseInt(input));
 			} else if(line.trim().equals(sb2String) && targetChunk == 10){	//attack4
-				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + Integer.parseInt(input) + ", " + getExperience() + ", " + getExperienceBar() + ", " + getLevel() + ",");
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", "
+						+ attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + Integer.parseInt(input) + ", "
+						+ getExperience() + ", " + getExperienceBar() + ", " + getLevel() + ", "
+						+ itemList[0].getName() + ", " + itemList[1].getName() + ", " + itemList[2].getName() + ", " + itemList[3].getName() + ",");
 				System.out.println("setting attack 4...");
-				speedStat = Integer.parseInt(input);
+				attackList[3] = new Attacks(Integer.parseInt(input));
 			} else if(line.trim().equals(sb2String) && targetChunk == 11){	//ExperienceStat
-				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", " + Integer.parseInt(input) + ", " + getExperienceBar() + ", " + getLevel() + ",");
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", "
+						+ attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", "
+						+ Integer.parseInt(input) + ", " + getExperienceBar() + ", " + getLevel() + ", "
+						+ itemList[0].getName() + ", " + itemList[1].getName() + ", " + itemList[2].getName() + ", " + itemList[3].getName() + ",");
 				System.out.println("setting experience stat...");
 				experienceStat = Integer.parseInt(input);
 			} else if(line.trim().equals(sb2String) && targetChunk == 12){	//ExperienceBar
-				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", " + getExperience() + ", " + Integer.parseInt(input) + ", " + getLevel() + ",");
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", "
+						+ attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", "
+						+ getExperience() + ", " + Integer.parseInt(input) + ", " + getLevel() + ", "
+						+ itemList[0].getName() + ", " + itemList[1].getName() + ", " + itemList[2].getName() + ", " + itemList[3].getName() + ",");
 				System.out.println("setting experience bar...");
-				experienceStat = Integer.parseInt(input);
+				experienceBar = Integer.parseInt(input);
 			} else if(line.trim().equals(sb2String) && targetChunk == 13){	//level
-				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", " + attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", " + getExperience() + ", " + getExperienceBar() + ", " + Integer.parseInt(input) + ",");
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", "
+						+ attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", "
+						+ getExperience() + ", " + getExperienceBar() + ", " + Integer.parseInt(input) + ", "
+						+ itemList[0].getName() + ", " + itemList[1].getName() + ", " + itemList[2].getName() + ", " + itemList[3].getName() + ",");
 				System.out.println("setting level...");
 				level = Integer.parseInt(input);
+			} else if(line.trim().equals(sb2String) && targetChunk == 14){	//item 1
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", "
+						+ attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", "
+						+ getExperience() + ", " + getExperienceBar() + ", " + getLevel() + ", "
+						+ input + ", " + itemList[1].getName() + ", " + itemList[2].getName() + ", " + itemList[3].getName() + ",");
+				System.out.println("setting item 1");
+				itemList[0] = new Item(input);
+			} else if(line.trim().equals(sb2String) && targetChunk == 15){	//item 2
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", "
+						+ attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", "
+						+ getExperience() + ", " + getExperienceBar() + ", " + getLevel() + ", "
+						+ itemList[0].getName() + ", " + input + ", " + itemList[2].getName() + ", " + itemList[3].getName() + ",");
+				System.out.println("setting item 1");
+				itemList[1] = new Item(input);
+			} else if(line.trim().equals(sb2String) && targetChunk == 16){	//item 3
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", "
+						+ attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", "
+						+ getExperience() + ", " + getExperienceBar() + ", " + getLevel() + ", "
+						+ itemList[0].getName() + ", " + itemList[1].getName() + ", " + input + ", " + itemList[3].getName() + ",");
+				System.out.println("setting item 1");
+				itemList[2] = new Item(input);
+			} else if(line.trim().equals(sb2String) && targetChunk == 17){	//item 4
+				writer1.println(getName() + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", "
+						+ attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", "
+						+ getExperience() + ", " + getExperienceBar() + ", " + getLevel() + ", "
+						+ itemList[0].getName() + ", " + itemList[1].getName() + ", " + itemList[2].getName() + ", " + input + ",");
+				System.out.println("setting item 1");
+				itemList[3] = new Item(input);
 			}
-
 		}
 		writer1.close();
 		reader2.close();
