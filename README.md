@@ -125,4 +125,11 @@ In the beginning, two boys had a dream. After playing games their entire lives, 
     5-6-2013 Carl
 
         Added Notes to readme.md in git
+    
+    5-21-2013 Blade
+    	
+    	Added IO compenent to Items
+    	
+    	Added addItem and useItem to Character class
+    		
 
