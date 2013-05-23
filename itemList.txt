@@ -1,0 +1,3 @@
+default, 0, 0, 0,
+testItem, 1, 1, 1,
+healthPotion, 0, 10, 0,
