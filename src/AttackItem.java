@@ -1,6 +1,6 @@
 /**
  * class that has an item with an attack
- * @author Carl-Admin
+ * 
  *
  */
 public class AttackItem extends Item{
@@ -16,5 +16,12 @@ public class AttackItem extends Item{
    public Attacks getAttack()
    {
       return myAttack;
+   }
+   /**
+    * passes next turn info down to attack for cooldown 
+    */
+   public void nextTurn()
+   {
+      myAttack.nextTurn();
    }
 } 

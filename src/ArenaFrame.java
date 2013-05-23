@@ -197,6 +197,9 @@ public class ArenaFrame extends JFrame
    /**
     * sets onesTurn to the corresponding turn
     * if roundNumber = 0 it resets the turns
+    * 
+    * *should be bug free now
+    * * one possible bug is that this method is not always called when the turn ends
     */
    private void nextTurn()
    {
@@ -209,9 +212,10 @@ public class ArenaFrame extends JFrame
          streakEnder = (arena.one.getSpeed() + 0.0)/(arena.two.getSpeed() + 0.0);
          ArrayList<Integer> temp = new ArrayList<Integer>();
          speedTotal = arena.one.getSpeed() + arena.two.getSpeed();
+         
          int currentSpeed = speedTotal;
          rand = new Random();
-
+         
          turns = new ArrayList<Integer>();
          for(int i = 0; i < speedTotal; i++)
          {
@@ -221,11 +225,10 @@ public class ArenaFrame extends JFrame
             }
             else
             {
-               
                temp.add(2);
             }
          } 
-         System.out.println(temp);
+         
          
          for(int i = 0; i < speedTotal; i++)
          {
@@ -234,8 +237,7 @@ public class ArenaFrame extends JFrame
             
             if(currentStreak[0] == 1 && currentStreak[1] >= streakConstant*streakEnder && temp.get(temp.size()-1) ==2)
             {
-               System.out.println("streak1");
-               System.out.println(turns);
+              
                currentStreak[0] = 2;
                currentStreak[1]=1;
                turns.add(2);
@@ -243,8 +245,7 @@ public class ArenaFrame extends JFrame
             }
             else if(currentStreak[0] == 2 && currentStreak[1] >= streakConstant/(streakEnder)&& temp.get(0) ==1)
             {
-               System.out.println("streak2");
-               System.out.println(turns);
+               
                currentStreak[0] = 1;
                currentStreak[1]=1;
                turns.add(1);
@@ -279,16 +280,19 @@ public class ArenaFrame extends JFrame
             }
             
             currentSpeed--;
-            System.out.println(currentStreak[1] + " is streak");
+            
          }
          System.out.println(turns +" is turns");
+         arena.one.nextTurn();
+         arena.two.nextTurn();
+         System.out.print("one health " + arena.one.getHealth());
+         System.out.println("   two health " + arena.two.getHealth());
         
 
       }
       
       randTurn = rand.nextInt(speedTotal);
-      //System.out.println("random is " + randTurn);
-      //System.out.println(turns.get(randTurn));
+     
       
       if(turns.remove(0) == 1)
       {
@@ -301,7 +305,7 @@ public class ArenaFrame extends JFrame
      
       
       roundNumber++;
-      //System.out.println(turns + " after remove");
+     
    }
    public void UIupdate()
    {
