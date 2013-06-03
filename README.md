@@ -131,5 +131,11 @@ In the beginning, two boys had a dream. After playing games their entire lives, 
     	Added IO compenent to Items
     	
     	Added addItem and useItem to Character class
+    
+    6-3-2013 Blade and Andrew
+    	
+    	Fixed IO elements for Items
+    	
+    	Plenty of GUI updates, turn system still needs work	
     		
 
