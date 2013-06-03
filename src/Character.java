@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.LinkedList;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -30,7 +31,6 @@ import javax.swing.JTextArea;
  * BUG NOTES:
  * lp: add catches for things such as cancel under writeCharacter, etc.  
  * hp: stats and attacks are added to the first character when character specified does not exist
- * hp: adding Items to preexisting characters does not work properly
  *
  * WIP:
  * removeAttack JOptionPane dialogue
@@ -55,6 +55,8 @@ public class Character {
 	private int level;
 	Attacks attackList[] = new Attacks[4];
 	Item itemList[] = new Item[4];
+	LinkedList<Item> itemLinkedList = new LinkedList<Item>();
+
 
 	private int tempAttack = 0;
 	private int tempDefense = 0;
@@ -62,7 +64,7 @@ public class Character {
 	private String tempName = "default";
 	private int tempEvasiveness = 1;
 	//private int tempHealth = 25;
-
+	
 	private JTextArea attackSelect;
 	private int variableAttackStat = 5;
 	private JTextArea defenseSelect;
@@ -92,10 +94,11 @@ public class Character {
 			attackList[i] = new Attacks(getMoveNumber(getName(), i));
 		}
 		for(int i = 0; i < 4; i++){
-			itemList[i] = new Item("default");
+			itemList[i] = new Item(getItemName(getName(), i));
 		}
 		setExperience(getIOExperience(characterName));
 		setExperienceBar(getIOExperienceBar(characterName));
+		setLevel(getIOLevel(characterName));
 	}
 
 	/**
@@ -153,6 +156,27 @@ public class Character {
 		System.out.println("default created");
 	}
 
+	/**
+	 * calls the nextTurn() in all items to reduce cooldown on attacks
+	 */
+	public void nextTurn()
+	{
+		for(Item c : itemLinkedList)
+		{
+			c.nextTurn();
+		}
+	}
+
+	/**
+	 * adds item to the char's items
+	 * @param a
+	 */
+	public  void addItem1(Item a)
+	{
+		if(!itemLinkedList.contains(a))
+			itemLinkedList.add(a);
+	}
+	
 	/**
 	 * gets the SYSTEM name of the character
 	 * @return name
@@ -903,17 +927,18 @@ public class Character {
 		boolean isAdded = false;
 		boolean itemExisted = false;
 		
-		for(int i = 0; i < getNumberOfAppearances(',', getLineNumber()); i++){
-			String sb2String = getLineData(getLineNumber());
-			int beginIndex = 0;
-			int endIndex = sb2String.indexOf(',');
-
+		String sb2String = getLineData(getLineNumber());
+		int beginIndex = 0;
+		int endIndex = sb2String.indexOf(',');
+		
+		for(int i = 0; i < getNumberOfAppearances(',', getLineNumber()); i++){	
 			//checks to see if item's name is already in IO
 			if(sb2String.substring(beginIndex, endIndex).trim().compareToIgnoreCase(anItem.getName()) != 0){
 				beginIndex = endIndex + 2;
 				endIndex = sb2String.indexOf(',', endIndex + 1);
 			} else if (sb2String.substring(beginIndex, endIndex).trim().compareToIgnoreCase(anItem.getName()) == 0){
 				itemExisted = true; 
+				break;
 			}
 		}
 		
@@ -926,7 +951,7 @@ public class Character {
 		
 		for(int i = 0; i < 4; i++)
 		{
-			if(itemList[i].getName().compareToIgnoreCase(new Attacks(7).getName()) == 0
+			if(itemList[i].getName().compareToIgnoreCase(new Item("default").getName()) == 0
 					&& !isAdded
 					&& !itemExisted)
 			{
@@ -934,10 +959,13 @@ public class Character {
 				replace(getName(), (i + 14), anItem.getName());	//bug possible here
 
 				isAdded = true;
-				System.out.println(i);
 				System.out.println("Congratulations!! " +
 						name + " has acquired " + anItem.getName() + "!!!!");	
 			}
+		}
+		
+		for(int i = 0; i < 4; i ++){
+			System.out.println(itemList[i].getName());
 		}
 		
 		if(!isAdded && !itemExisted)
@@ -1051,6 +1079,18 @@ public class Character {
 			return -1;
 		}
 	}
+	
+	/**
+	 * Applies the item's stat changes to the specified character
+	 * @param theCharacter
+	 */
+	public void use(Item theItem){
+		setSpeed(getSpeed() + theItem.getSpeed());
+		setDefense(getDefense() + theItem.getDefense());
+		setHealth(getHealth() + theItem.getHealth());
+		System.out.println("stats modified");
+	}
+	
 	public boolean isDead()
 	{
 		return isDead;
@@ -1088,7 +1128,34 @@ public class Character {
 			} 
 		}
 		return moveNumber;
-
+	}
+	
+	/**
+	 * Gets the name of a specified item
+	 * @param characterName
+	 * @param slot
+	 * @return itemName
+	 * @throws IOException
+	 */
+	public String getItemName(String characterName, int slot) throws IOException{
+		String sb2String = getLineData(getLineNumber(characterName));
+		int numberOfAppearances = getNumberOfAppearances(',', getLineNumber(characterName));
+		String itemName = "default";
+		
+		int beginIndex = 0;
+		int endIndex = sb2String.indexOf(',');
+		
+		for(int i = 0; i < numberOfAppearances; i++){
+			if(i == slot + 13){
+				itemName = sb2String.substring(beginIndex, endIndex);
+				break;
+			}
+			if(i != numberOfAppearances){
+				beginIndex = endIndex + 2;
+				endIndex = sb2String.indexOf(",", endIndex + 1);
+			}
+		}
+		return itemName;
 	}
 
 	/**
@@ -1317,11 +1384,16 @@ public class Character {
 				outputStream.println(tempName + ", " + tempAttack + ", " + tempDefense + ", " + tempSpeed + ", " + evasivenessStat + ", " + healthStat + ", " + attackList[0].getIONumber() + ", "  + 
 						attackList[1].getIONumber() + ", "  + attackList[2].getIONumber() + ", "  + attackList[3].getIONumber() + ", "
 						+ experienceStat + ", " + experienceBar + ", " + level + ", " +
-						itemList[0].getLine(itemList[0].getName()) + ", " + itemList[1].getLine(itemList[1].getName()) + ", " + itemList[2].getLine(itemList[2].getName()) + ", " + itemList[3].getLine(itemList[3].getName()) + ",");
+						itemList[0].getName() + ", " + itemList[1].getName() + ", " + itemList[2].getName() + ", " + itemList[3].getName() + ",");
 				setName(tempName);
 				setAttack(tempAttack);
 				setDefense(tempDefense);
 				setSpeed(tempSpeed);
+				setEvasiveness(evasivenessStat);
+				setHealth(healthStat);
+				setExperience(experienceStat);
+				setExperienceBar(experienceBar);
+				setLevel(level);
 			}
 			finally{
 				if(outputStream != null){

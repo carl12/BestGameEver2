@@ -108,6 +108,8 @@ public class Item {
 		}
 	}
 	
+	public void nextTurn(){}
+	
 	/**
 	 * Gets the name of the item
 	 * @return name
