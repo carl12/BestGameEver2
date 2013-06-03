@@ -15,15 +15,21 @@ public class HealthPanel extends JPanel {
 		super.paintComponent(g);
 		g.setColor(Color.black);
 		g.drawString(fighter.getName() + "'s Health:", 10 ,10);
+		g.drawString("EXP:", 10, 25);
+		g.drawString("Lvl: " + fighter.level, 10, 0);
 		
 		
 		if(fighter.getHealth() > 0)
 		{
-			g.drawRect(fighter.getName().length()  + 101, 0, fighter.permaHealthStat * 4, 10);
+			g.drawRect(fighter.getName().length()  + 109, 0, fighter.permaHealthStat * 4, 10);
 			g.setColor(Color.red);
-			g.fillRect(fighter.getName().length()   + 101, 0, fighter.getHealth() * 4, 10);
+			g.fillRect(fighter.getName().length()   + 109, 0, fighter.getHealth() * 4, 10);
 		}
-		System.out.println(this.getHeight());
-		System.out.println(this.getWidth());
+			g.setColor(Color.black);
+			g.drawRect(fighter.getName().length() + 109, 15, fighter.experienceBar * 4 , 10);
+			g.setColor(Color.YELLOW);
+			g.fillRect(fighter.getName().length() + 109, 15, fighter.experienceStat * 4, 10);
+		System.out.println("label height " + this.getHeight());
+		System.out.println("label width " + this.getWidth());
 	}
 }

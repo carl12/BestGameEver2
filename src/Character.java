@@ -50,9 +50,9 @@ public class Character {
 
 	private boolean isDead;
 
-	private int experienceStat;
-	private int experienceBar;
-	private int level;
+	int experienceStat;
+	int experienceBar;
+	int level;
 	Attacks attackList[] = new Attacks[4];
 	Item itemList[] = new Item[4];
 	LinkedList<Item> itemLinkedList = new LinkedList<Item>();
