@@ -29,7 +29,8 @@ import javax.swing.JTextArea;
  * Format: CHARACTER_NAME, ATTACK_STAT, DEFENSE_STAT, SPEED_STAT, EVASIVENESS_STAT, ATTACK1_NUMBER, ATTACK2_NUMBER, ATTACK3_NUMBER, ATTACK4_NUMBER, EXPERIENCE, EXPERIENCE_BAR, LEVEL, ITEM1_NAME, ITEM2_NAME, ITEM3_NAME, ITEM4_NAME,
  *  
  * BUG NOTES:
- * lp: add catches for things such as cancel under writeCharacter, etc.  
+ * lp: add catches for things such as cancel under writeCharacter, etc.
+
  *
  * WIP:
  * removeAttack JOptionPane dialogue
@@ -53,7 +54,7 @@ public class Character {
 	int experienceBar;
 	int level;
 	Attacks attackList[] = new Attacks[4];
-	Item itemList[] = new Item[4];
+	//Item itemList[] = new Item[4];
 	LinkedList<Item> itemLinkedList = new LinkedList<Item>();
 
 
@@ -63,7 +64,7 @@ public class Character {
 	private String tempName = "default";
 	private int tempEvasiveness = 1;
 	//private int tempHealth = 25;
-	
+
 	private JTextArea attackSelect;
 	private int variableAttackStat = 5;
 	private JTextArea defenseSelect;
@@ -82,7 +83,7 @@ public class Character {
 	public Character(String characterName) throws IOException{
 		//stats not written by writeCharacter listed here
 		boolean isCreated = false;
-		
+
 		BufferedReader reader = new BufferedReader(new FileReader("characterList.txt"));
 		String temp;
 		while((temp = reader.readLine()) != null){
@@ -91,7 +92,7 @@ public class Character {
 				isCreated = true;
 			}
 		}
-		
+
 		if(isCreated){
 			setName(getIOName(characterName));
 			setAttack(getIOAttack(characterName));
@@ -124,10 +125,10 @@ public class Character {
 	public Character(int lineNumber) throws IOException{
 		//stats not written by writeCharacter listed here
 		boolean isCreated = false;
-		
+
 		String characterLine = getLineData(lineNumber);
 		String characterName = characterLine.substring(0, characterLine.indexOf(','));
-		
+
 		BufferedReader reader = new BufferedReader(new FileReader("characterList.txt"));
 		String temp;
 		while((temp = reader.readLine()) != null){
@@ -136,7 +137,7 @@ public class Character {
 				isCreated = true;
 			}
 		}
-		
+
 		if(isCreated){
 			setName(getIOName(characterName));
 			setAttack(getIOAttack(characterName));
@@ -150,7 +151,7 @@ public class Character {
 			}
 			itemLinkedList.clear();
 			for(int i = 0; i < 4; i++){
-				itemLinkedList.add( new Item(getItemName(getName(), i)));
+				itemLinkedList.add(new Item(getItemName(getName(), i)));
 			}
 			setExperience(getIOExperience(characterName));
 			setExperienceBar(getIOExperienceBar(characterName));
@@ -160,7 +161,7 @@ public class Character {
 			alert.showMessageDialog(null, "THAT CHARACTER DOESN'T EXIST!", "alert", JOptionPane.ERROR_MESSAGE);
 		}
 	}
-	
+
 	/**
 	 * Uses writeCharacter() to create a new character with user specified stats
 	 * @throws IOException
@@ -176,6 +177,7 @@ public class Character {
 		for(int i = 0; i < 4; i++){
 			attackList[i] = new Attacks(7);
 		}
+
 		itemLinkedList.clear();
 		for(int i = 0; i < 4; i++){
 			itemLinkedList.add(new Item("default"));
@@ -202,11 +204,12 @@ public class Character {
 		for(int i = 0; i < 4; i++){
 			attackList[i] = new Attacks(7);
 		}
+
 		itemLinkedList.clear();
 		for(int i = 0; i < 4; i++){
 			itemLinkedList.add(new Item("default"));
 		}
-		
+
 		this.color = color;
 		x = anX;
 		y = anY;
@@ -236,7 +239,7 @@ public class Character {
 		if(!itemLinkedList.contains(a))
 			itemLinkedList.add(a);
 	}
-	
+
 	/**
 	 * gets the SYSTEM name of the character
 	 * @return name
@@ -367,7 +370,7 @@ public class Character {
 	 * gets the IO defenseStat of a character
 	 * @param characterName
 	 * @return returnDefense
- 	 * @throws IOException
+	 * @throws IOException
 	 */
 	public int getIODefense(String characterName) throws IOException{
 		String sb2String = getLineData(getLineNumber(characterName));
@@ -702,7 +705,7 @@ public class Character {
 		experienceBar = input;
 		return experienceBar;
 	}
-	
+
 	/**
 	 * gets the SYSTEM level
 	 * @return level
@@ -761,7 +764,7 @@ public class Character {
 		level = input;
 		return level;
 	}
-	
+
 	/**
 	 * returns the healthStat of the character to permaHealthStat
 	 */
@@ -769,7 +772,7 @@ public class Character {
 	{
 		healthStat = permaHealthStat;
 	}
-	
+
 	/**
 	 * adds an Attack to the character's attackList[]
 	 * @param anAttack
@@ -942,7 +945,7 @@ public class Character {
 			theAttack = whichAttack.getText();
 			for(i = 0; i < 4; i++){
 				if(attackList[i].getName().compareToIgnoreCase(theAttack.trim()) == 0){
-					attackList[i] = new Attacks(7);
+					attackList[i] = new Attacks(replaceAttack.getIONumber());
 					System.out.println("removed " + theAttack);
 					replace(getName(), (i + 7), Integer.toString(replaceAttack.getIONumber()));
 					removed = true;
@@ -986,11 +989,11 @@ public class Character {
 	public void addItem(Item anItem) throws IOException{
 		boolean isAdded = false;
 		boolean itemExisted = false;
-		
+
 		String sb2String = getLineData(getLineNumber());
 		int beginIndex = 0;
 		int endIndex = sb2String.indexOf(',');
-		
+
 		for(int i = 0; i < getNumberOfAppearances(',', getLineNumber()); i++){	
 			//checks to see if item's name is already in IO
 			if(sb2String.substring(beginIndex, endIndex).trim().compareToIgnoreCase(anItem.getName()) != 0){
@@ -1001,21 +1004,19 @@ public class Character {
 				break;
 			}
 		}
-		
-		for(int i = 0; i < 4; i++){
-			if(itemLinkedList.get(i).getName().compareToIgnoreCase(anItem.getName()) == 0 )
-			{
-				itemExisted = true;
-			}
+
+		if(itemLinkedList.contains(anItem))
+		{
+			itemExisted = true;
 		}
-		
+
 		for(int i = 0; i < 4; i++)
 		{
 			if(itemLinkedList.get(i).getName().compareToIgnoreCase(new Item("default").getName()) == 0
 					&& !isAdded
 					&& !itemExisted)
 			{
-				itemLinkedList.set(i,anItem);
+				itemLinkedList.set(i, anItem);
 				replace(getName(), (i + 14), anItem.getName());	//bug possible here
 
 				isAdded = true;
@@ -1023,15 +1024,15 @@ public class Character {
 						name + " has acquired " + anItem.getName() + "!!!!");	
 			}
 		}
-		
+
 		for(int i = 0; i < 4; i ++){
 			System.out.println(itemLinkedList.get(i).getName());
 		}
-		
+
 		if(!isAdded && !itemExisted)
 		{
-			System.out.println("Could not learn " + anItem.getName() + ". Moveset full");
-			removeItem();
+			System.out.println("Could not learn " + anItem.getName() + ". Item list full");
+			removeItem(anItem);
 		}
 		else if(itemExisted)
 		{
@@ -1054,7 +1055,7 @@ public class Character {
 				System.out.println(itemLinkedList.get(i).getName());
 			}
 		}
-		
+
 		JPanel removePanel = new JPanel();
 
 		JTextArea whichItem = new JTextArea(1,10);
@@ -1063,12 +1064,12 @@ public class Character {
 		JOptionPane removePane = new JOptionPane();
 		int result = removePane.showConfirmDialog(null, removePanel, 
 				"Remove an Item", JOptionPane.OK_CANCEL_OPTION);	
-		
+
 		if(result == JOptionPane.OK_OPTION){
 			theItem = whichItem.getText();
 			for(i = 0; i < 4; i++){
 				if(itemLinkedList.get(i).getName().compareToIgnoreCase(theItem.trim()) == 0){
-					itemLinkedList.set(i,new Item("default"));
+					itemLinkedList.set(i, new Item("default"));
 					System.out.println("removed " + theItem);
 					replace(getName(), (i + 14), "default");
 					removed = true;
@@ -1079,7 +1080,7 @@ public class Character {
 			System.out.println("Nothing was removed");
 			removed = true;
 		}
-		
+
 		if (!removed){
 			System.out.println("That item does not exist! Would you still like to remove an item? (type yes or no)");
 			Scanner scan2 = new Scanner(System.in);
@@ -1104,25 +1105,85 @@ public class Character {
 		}
 	}
 	/**
-	 * removes a specified item
+	 * removes an Item from a character's itemLinkedList and replaces it with an item
 	 * @ERROR test for completion
 	 * @param anItem
 	 * @throws IOException
 	 */
-	public void removeItem(Item anItem) throws IOException{
+	public void removeItem(Item replaceItem) throws IOException{
+		/*
 		boolean removed = false;
 		for(int i = 0; i < 4; i++){
-			if(itemLinkedList.get(i).getName().compareToIgnoreCase(anItem.getName()) == 0){
-				itemLinkedList.set(i,new Item("default"));
+			if(itemLinkedList.contains(replaceItem)){
+				itemLinkedList.set(i, replaceItem);
 				removed = true;
-				replace(getName(), i + 14, "default");
+				replace(getName(), i + 14, replaceItem.getName());
 			}
 		}
 		if(removed == false){
 			System.out.println("The item you'd like to remove isn't there!");
 		}
+		*/
+		boolean removed = false;
+		String theItem = null;
+		int i = 0;
+
+		System.out.println("Which item would you like to remove?");
+		for(i = 0; i < 4; i++){
+			if(itemLinkedList.get(i).getName().compareToIgnoreCase(new Item("default").getName()) != 0){
+				System.out.println(itemLinkedList.get(i).getName());
+			}
+		}
+
+		JPanel removePanel = new JPanel();
+
+		JTextArea whichItem = new JTextArea(1,10);
+		removePanel.add(whichItem);
+
+		JOptionPane removePane = new JOptionPane();
+		int result = removePane.showConfirmDialog(null, removePanel, 
+				"Remove an Item", JOptionPane.OK_CANCEL_OPTION);	
+
+		if(result == JOptionPane.OK_OPTION){
+			theItem = whichItem.getText();
+			for(i = 0; i < 4; i++){
+				if(itemLinkedList.get(i).getName().compareToIgnoreCase(theItem.trim()) == 0){
+					itemLinkedList.set(i, new Item(replaceItem.getName()));
+					System.out.println("removed " + theItem);
+					replace(getName(), (i + 14), replaceItem.getName());
+					removed = true;
+					break;
+				}
+			}
+		} else{
+			System.out.println("Nothing was removed");
+			removed = true;
+		}
+
+		if (!removed){
+			System.out.println("That item does not exist! Would you still like to remove an item? (type yes or no)");
+			Scanner scan2 = new Scanner(System.in);
+			String input2 = scan2.nextLine().toLowerCase();
+
+			boolean isValid = true;
+
+			while(isValid == true){
+				if(input2.compareToIgnoreCase("yes") == 0){
+					removeItem();
+					isValid = false;
+					break;
+				}
+				else if(input2.compareToIgnoreCase("no") == 0){
+					isValid = false;
+					break;
+				} else{
+					isValid = true;
+					break;
+				}
+			}
+		}
 	}
-	
+
 	public int attack(int damage)
 	{
 		if(damage >= 0)
@@ -1140,7 +1201,7 @@ public class Character {
 			return -1;
 		}
 	}
-	
+
 	/**
 	 * Applies the item's stat changes to the specified character
 	 * @param theCharacter
@@ -1152,7 +1213,7 @@ public class Character {
 		removeItem(theItem);
 		System.out.println("stats modified");
 	}
-	
+
 	public boolean isDead()
 	{
 		return isDead;
@@ -1162,7 +1223,7 @@ public class Character {
 		isDead = true;
 		return isDead;
 	}
-	
+
 	/**
 	 * Gets the move number of a specified attack
 	 * @ERROR test for completion
@@ -1191,7 +1252,7 @@ public class Character {
 		}
 		return moveNumber;
 	}
-	
+
 	/**
 	 * Gets the name of a specified item
 	 * @param characterName
@@ -1203,10 +1264,10 @@ public class Character {
 		String sb2String = getLineData(getLineNumber(characterName));
 		int numberOfAppearances = getNumberOfAppearances(',', getLineNumber(characterName));
 		String itemName = "default";
-		
+
 		int beginIndex = 0;
 		int endIndex = sb2String.indexOf(',');
-		
+
 		for(int i = 0; i < numberOfAppearances; i++){
 			if(i == slot + 13){
 				itemName = sb2String.substring(beginIndex, endIndex);
@@ -1258,7 +1319,7 @@ public class Character {
 		}
 		return congratulations;
 	}
-	
+
 	/**
 	 * draws the character's GUI representation
 	 * @param g
@@ -1704,7 +1765,7 @@ public class Character {
 		//System.out.println(sb2String);
 		return sb2String;
 	}
-	
+
 	/**
 	 * Gets the number of appearances of a specific character on a specific line
 	 * @param desiredCharacter
