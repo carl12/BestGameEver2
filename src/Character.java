@@ -30,7 +30,6 @@ import javax.swing.JTextArea;
  *  
  * BUG NOTES:
  * lp: add catches for things such as cancel under writeCharacter, etc.  
- * hp: stats and attacks are added to the first character when character specified does not exist
  *
  * WIP:
  * removeAttack JOptionPane dialogue
@@ -82,25 +81,84 @@ public class Character {
 	 */
 	public Character(String characterName) throws IOException{
 		//stats not written by writeCharacter listed here
-
-		setName(getIOName(characterName));
-		setAttack(getIOAttack(characterName));
-		setDefense(getIODefense(characterName));
-		setSpeed(getIOSpeed(characterName));
-		setEvasiveness(getIOEvasiveness(characterName));
-		setHealth(getIOHealth(characterName));
-		isDead = false;
-		for(int i = 0; i < 4; i++){
-			attackList[i] = new Attacks(getMoveNumber(getName(), i));
+		boolean isCreated = false;
+		
+		BufferedReader reader = new BufferedReader(new FileReader("characterList.txt"));
+		String temp;
+		while((temp = reader.readLine()) != null){
+			String IOLineName = temp.substring(0, temp.indexOf(','));			
+			if(IOLineName.trim().compareToIgnoreCase(characterName) == 0){
+				isCreated = true;
+			}
 		}
-		for(int i = 0; i < 4; i++){
-			itemList[i] = new Item(getItemName(getName(), i));
+		
+		if(isCreated){
+			setName(getIOName(characterName));
+			setAttack(getIOAttack(characterName));
+			setDefense(getIODefense(characterName));
+			setSpeed(getIOSpeed(characterName));
+			setEvasiveness(getIOEvasiveness(characterName));
+			setHealth(getIOHealth(characterName));
+			isDead = false;
+			for(int i = 0; i < 4; i++){
+				attackList[i] = new Attacks(getMoveNumber(getName(), i));
+			}
+			for(int i = 0; i < 4; i++){
+				itemList[i] = new Item(getItemName(getName(), i));
+			}
+			setExperience(getIOExperience(characterName));
+			setExperienceBar(getIOExperienceBar(characterName));
+			setLevel(getIOLevel(characterName));
+		} else{
+			JOptionPane alert = new JOptionPane();
+			alert.showMessageDialog(null, "THAT CHARACTER DOESN'T EXIST!", "alert", JOptionPane.ERROR_MESSAGE);
 		}
-		setExperience(getIOExperience(characterName));
-		setExperienceBar(getIOExperienceBar(characterName));
-		setLevel(getIOLevel(characterName));
 	}
 
+	/**
+	 * Sets the stats of a character from IO
+	 * @param lineNumber
+	 * @throws IOException
+	 */
+	public Character(int lineNumber) throws IOException{
+		//stats not written by writeCharacter listed here
+		boolean isCreated = false;
+		
+		String characterLine = getLineData(lineNumber);
+		String characterName = characterLine.substring(0, characterLine.indexOf(','));
+		
+		BufferedReader reader = new BufferedReader(new FileReader("characterList.txt"));
+		String temp;
+		while((temp = reader.readLine()) != null){
+			String IOLineName = temp.substring(0, temp.indexOf(','));			
+			if(IOLineName.trim().compareToIgnoreCase(characterName) == 0){
+				isCreated = true;
+			}
+		}
+		
+		if(isCreated){
+			setName(getIOName(characterName));
+			setAttack(getIOAttack(characterName));
+			setDefense(getIODefense(characterName));
+			setSpeed(getIOSpeed(characterName));
+			setEvasiveness(getIOEvasiveness(characterName));
+			setHealth(getIOHealth(characterName));
+			isDead = false;
+			for(int i = 0; i < 4; i++){
+				attackList[i] = new Attacks(getMoveNumber(getName(), i));
+			}
+			for(int i = 0; i < 4; i++){
+				itemList[i] = new Item(getItemName(getName(), i));
+			}
+			setExperience(getIOExperience(characterName));
+			setExperienceBar(getIOExperienceBar(characterName));
+			setLevel(getIOLevel(characterName));
+		} else{
+			JOptionPane alert = new JOptionPane();
+			alert.showMessageDialog(null, "THAT CHARACTER DOESN'T EXIST!", "alert", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
 	/**
 	 * Uses writeCharacter() to create a new character with user specified stats
 	 * @throws IOException
@@ -171,7 +229,7 @@ public class Character {
 	 * adds item to the char's items
 	 * @param a
 	 */
-	public  void addItem1(Item a)
+	public void addItem1(Item a)
 	{
 		if(!itemLinkedList.contains(a))
 			itemLinkedList.add(a);
@@ -1055,6 +1113,7 @@ public class Character {
 			if(itemList[i].getName().compareToIgnoreCase(anItem.getName()) == 0){
 				itemList[i] = new Item("default");
 				removed = true;
+				replace(getName(), i + 14, "default");
 			}
 		}
 		if(removed == false){
@@ -1084,10 +1143,11 @@ public class Character {
 	 * Applies the item's stat changes to the specified character
 	 * @param theCharacter
 	 */
-	public void use(Item theItem){
+	public void use(Item theItem) throws IOException{
 		setSpeed(getSpeed() + theItem.getSpeed());
 		setDefense(getDefense() + theItem.getDefense());
 		setHealth(getHealth() + theItem.getHealth());
+		removeItem(theItem);
 		System.out.println("stats modified");
 	}
 	
@@ -1708,7 +1768,7 @@ public class Character {
 			}
 
 			if(line.trim().equals(sb2String) && targetChunk == 1){	//name
-				writer1.println(input + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + "," + getEvasiveness() + ", " + getHealth() + ", "
+				writer1.println(input + ", " + getAttack() + ", " + getDefense() + ", " + getSpeed() + ", " + getEvasiveness() + ", " + getHealth() + ", "
 						+ attackList[0].getIONumber() + ", " + attackList[1].getIONumber() + ", " + attackList[2].getIONumber() + ", " + attackList[3].getIONumber() + ", "
 						+ getExperience() + ", " + getExperienceBar() +  ", " + getLevel() + ", "
 						+ itemList[0].getName() + ", " + itemList[1].getName() + ", " + itemList[2].getName() + ", " + itemList[3].getName() + ",");

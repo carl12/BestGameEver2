@@ -136,6 +136,14 @@ In the beginning, two boys had a dream. After playing games their entire lives, 
     	
     	Fixed IO elements for Items
     	
-    	Plenty of GUI updates, turn system still needs work	
+    	Plenty of GUI updates, turn system still needs work
+    	
+    6-5-2013 Blade
+    
+    	IO redundency fixes
+    	
+    	IO Item usage fixes
+    	
+    	New Character constructor that takes line number	
     		
 
