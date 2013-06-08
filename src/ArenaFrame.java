@@ -643,7 +643,7 @@ public class ArenaFrame extends JFrame
 
 	public static void main(String[] args) throws IOException
 	{
-	   /*
+	 
 		ArenaFrame frame = new ArenaFrame();
 		frame.setSize(1100,700);
 		frame.setMinimumSize(new Dimension(1300,700));
@@ -651,9 +651,8 @@ public class ArenaFrame extends JFrame
 		frame.setTitle("RPG Demo");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
-		*/
-	   Character noob = new Character();
-	   noob.addItem(new Item("healthPotion"));
+	
+	   
 	}
 }
 
