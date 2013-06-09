@@ -6,11 +6,8 @@ import java.awt.event.KeyListener;
 
 /**
  * Problems:
- * -Character can move out of bounds
- * -Character's previous location does not delete
  * 
  * WIP: 
- * -Get character moving
  * -Clean code and do javadoc
  * -add to a single panel
  */
@@ -36,7 +33,7 @@ public class GUIDriver extends JFrame{
 		setSize(X_WINDOW_SIZE, Y_WINDOW_SIZE + MENU_WIDTH);
 		setVisible(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setResizable(true);
+		setResizable(false);
 
 		for(int i = 0; i < xGrid.length; i++){
 			xGrid[i] = player.getXValidation(i);
@@ -91,13 +88,25 @@ public class GUIDriver extends JFrame{
 
 		public void keyPressed(KeyEvent arg0) {
 			switch(arg0.getKeyCode()){
-			case KeyEvent.VK_UP : player.setYLocation(player.getYLocation() - 1);
+			case KeyEvent.VK_UP : 
+				if(player.getYLocation() != 0){
+					player.setYLocation(player.getYLocation() - 1);
+				}
 				break;
-			case KeyEvent.VK_DOWN : player.setYLocation(player.getYLocation() + 1);
+			case KeyEvent.VK_DOWN : 
+				if(player.getYLocation() != 69){
+					player.setYLocation(player.getYLocation() + 1);
+				}
 				break;
-			case KeyEvent.VK_RIGHT : player.setXLocation(player.getXLocation() + 1);
+			case KeyEvent.VK_RIGHT : 
+				if(player.getXLocation() != 109){
+					player.setXLocation(player.getXLocation() + 1);
+				}
 				break;
-			case KeyEvent.VK_LEFT : player.setXLocation(player.getXLocation() - 1);
+			case KeyEvent.VK_LEFT : 
+				if(player.getXLocation() != 0){
+					player.setXLocation(player.getXLocation() - 1);
+				}
 				break;
 			}
 		}
