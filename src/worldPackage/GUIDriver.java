@@ -1,10 +1,13 @@
 package worldPackage;
+
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 /**
  * Problems:
+ * -Character can move out of bounds
+ * -Character's previous location does not delete
  * 
  * WIP: 
  * -Get character moving
@@ -36,18 +39,21 @@ public class GUIDriver extends JFrame{
 		setResizable(true);
 
 		for(int i = 0; i < xGrid.length; i++){
-			xGrid[i] = false;
+			xGrid[i] = player.getXValidation(i);
 		}
 		for(int i = 0; i < yGrid.length; i++){
-			yGrid[i] = false;
+			yGrid[i] = player.getYValidation(i);
 		}
 
 		addKeyListener(theListener);
 		addCharacter(player);
+		
 	}
 
 	public void paint (Graphics g){
-
+		
+		g.clearRect(0, 0, X_WINDOW_SIZE, Y_WINDOW_SIZE + MENU_WIDTH);
+		
 		//draws horizontal grid lines in intervals of GRID_LENGTH
 		for(int i = 0; i < yGrid.length; i++){
 			g.drawLine(0, i * GRID_LENGTH + MENU_WIDTH, X_WINDOW_SIZE, i * GRID_LENGTH + MENU_WIDTH);
@@ -57,7 +63,19 @@ public class GUIDriver extends JFrame{
 			g.drawLine(i * GRID_LENGTH, 0 + MENU_WIDTH, i * GRID_LENGTH, Y_WINDOW_SIZE + MENU_WIDTH);
 		}	
 		
+		for(int i = 0; i < xGrid.length; i++){
+			if(player.getXValidation(i)){
+				System.out.println("X Coordinate: " + i);
+			}
+		}
+		for(int i = 0; i < yGrid.length; i++){
+			if(player.getYValidation(i)){
+				System.out.println("Y Coordinate: " + i);
+			}
+		}
+		
 		g.fillRect(player.getXLocation() * GRID_LENGTH, player.getYLocation() * GRID_LENGTH + MENU_WIDTH, GRID_LENGTH, GRID_LENGTH);
+		
 		repaint();
 	}
 
@@ -72,9 +90,8 @@ public class GUIDriver extends JFrame{
 	public class boardListener implements KeyListener{
 
 		public void keyPressed(KeyEvent arg0) {
-			// TODO Auto-generated method stub
 			switch(arg0.getKeyCode()){
-			case KeyEvent.VK_UP : player.setYLocation(player.getYLocation() - 1 );
+			case KeyEvent.VK_UP : player.setYLocation(player.getYLocation() - 1);
 				break;
 			case KeyEvent.VK_DOWN : player.setYLocation(player.getYLocation() + 1);
 				break;
@@ -86,13 +103,11 @@ public class GUIDriver extends JFrame{
 		}
 
 		public void keyReleased(KeyEvent arg0) {
-			// TODO Auto-generated method stub
 			
 
 		}
 
 		public void keyTyped(KeyEvent arg0) {
-			// TODO Auto-generated method stub
 
 		}
 

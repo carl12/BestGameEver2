@@ -22,7 +22,7 @@ public class PlayerPiece {
 		for(int i = 0; i < xGrid.length; i ++){
 			if(xGrid[i] == true){
 				xGrid[i] = false;
-				System.out.println(i);
+				//System.out.println(i);
 			}
 		}
 		xGrid[input] = true;
@@ -41,7 +41,7 @@ public class PlayerPiece {
 		for(int i = 0; i < yGrid.length; i ++){
 			if(yGrid[i] == true){
 				yGrid[i] = false;
-				System.out.println(i);
+				//System.out.println(i);
 			}
 		}
 		yGrid[input] = true;
@@ -54,6 +54,44 @@ public class PlayerPiece {
 			}
 		}
 		return gridNumber;
+	}
+	
+	public boolean getXValidation(int xLocation){
+		boolean isValid = false;
+		
+		if(xGrid[xLocation] == true){
+			isValid = true;
+		} else{
+			isValid = false;
+		}
+		
+		return isValid;
+	}
+	public void switchXValidation(int xLocation){
+		if(xGrid[xLocation] == true){
+			xGrid[xLocation] = false;
+		} else{
+			xGrid[xLocation] = true;
+		}
+	}
+	
+	public boolean getYValidation(int yLocation){
+		boolean isValid = false;
+		
+		if(yGrid[yLocation] == true){
+			isValid = true;
+		} else{
+			isValid = false;
+		}
+		
+		return isValid;
+	}
+	public void switchYValidation(int yLocation){
+		if(yGrid[yLocation] == true){
+			yGrid[yLocation] = false;
+		} else{
+			yGrid[yLocation] = true;
+		}
 	}
 
 }
