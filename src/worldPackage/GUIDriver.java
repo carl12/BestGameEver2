@@ -1,5 +1,6 @@
 package worldPackage;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -14,6 +15,8 @@ import java.awt.event.KeyListener;
 
 import javax.swing.JFrame;
 
+import worldPackage.enviroPanel;
+
 public class GUIDriver extends JFrame{
 
 	private static final long serialVersionUID = 1L;
@@ -23,10 +26,15 @@ public class GUIDriver extends JFrame{
 	public final static int GRID_LENGTH = 10;
 	public final static int MENU_WIDTH = 50;
 
-	public final static boolean xGrid[] = new boolean[X_WINDOW_SIZE/GRID_LENGTH];
-	public final static boolean yGrid[] = new boolean[Y_WINDOW_SIZE/GRID_LENGTH];	
+	/*
+	public final static String xGrid[] = new String[X_WINDOW_SIZE/GRID_LENGTH];
+	public final static String yGrid[] = new String[Y_WINDOW_SIZE/GRID_LENGTH];	
+	 */
 
-	PlayerPiece player = new PlayerPiece();
+	public static enviroPanel initPanel = new enviroPanel();
+
+	Piece player = new PlayerPiece(4, 4);
+	Piece switcher = new panelSwitchPiece(10, 10);
 	KeyListener theListener = new boardListener();
 
 	public GUIDriver(){
@@ -35,84 +43,99 @@ public class GUIDriver extends JFrame{
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setResizable(false);
 
-		for(int i = 0; i < xGrid.length; i++){
-			xGrid[i] = player.getXValidation(i);
-		}
-		for(int i = 0; i < yGrid.length; i++){
-			yGrid[i] = player.getYValidation(i);
-		}
-
 		addKeyListener(theListener);
 		addCharacter(player);
-		
+		//switcherCollisionCheck(player, switcher);
+
 	}
 
 	public void paint (Graphics g){
-		
+
 		g.clearRect(0, 0, X_WINDOW_SIZE, Y_WINDOW_SIZE + MENU_WIDTH);
+		g.setColor(Color.black);
 		
 		//draws horizontal grid lines in intervals of GRID_LENGTH
-		for(int i = 0; i < yGrid.length; i++){
+		for(int i = 0; i < initPanel.getYLength(); i++){
 			g.drawLine(0, i * GRID_LENGTH + MENU_WIDTH, X_WINDOW_SIZE, i * GRID_LENGTH + MENU_WIDTH);
 		}
 		//draws vertical grid lines in intervals of GRID_LENGTH
-		for(int i = 0; i < xGrid.length; i++){
+		for(int i = 0; i < initPanel.getXLength(); i++){
 			g.drawLine(i * GRID_LENGTH, 0 + MENU_WIDTH, i * GRID_LENGTH, Y_WINDOW_SIZE + MENU_WIDTH);
 		}	
-		
-		for(int i = 0; i < xGrid.length; i++){
+
+		//draws player coordinates
+		for(int i = 0; i < initPanel.getXLength(); i++){
 			if(player.getXValidation(i)){
 				System.out.println("X Coordinate: " + i);
 			}
 		}
-		for(int i = 0; i < yGrid.length; i++){
+		for(int i = 0; i < initPanel.getYLength(); i++){
 			if(player.getYValidation(i)){
 				System.out.println("Y Coordinate: " + i);
 			}
 		}
 		
-		g.fillRect(player.getXLocation() * GRID_LENGTH, player.getYLocation() * GRID_LENGTH + MENU_WIDTH, GRID_LENGTH, GRID_LENGTH);
+		//draws player
+		g.fillRect(player.getXCoord() * GRID_LENGTH, player.getYCoord() * GRID_LENGTH + MENU_WIDTH, GRID_LENGTH, GRID_LENGTH);
+
+		//draws switcher
+		g.setColor(Color.red);
+		g.fillRect(switcher.getXCoord() * GRID_LENGTH, switcher.getYCoord() * GRID_LENGTH + MENU_WIDTH, GRID_LENGTH, GRID_LENGTH);
+		
+		checkCollision(player, switcher);
 		
 		repaint();
 	}
 
-	public void addCharacter(PlayerPiece thePlayer){
-		int xGridLocation = thePlayer.getXLocation();
-		int yGridLocation = thePlayer.getYLocation();
+	public void addCharacter(Piece thePlayer){
+		int xGridLocation = thePlayer.getXCoord();
+		int yGridLocation = thePlayer.getYCoord();
 
-		xGrid[xGridLocation] = true;
-		yGrid[yGridLocation] = true;
+		initPanel.setXValue(xGridLocation, "p");
+		initPanel.setYValue(yGridLocation, "p");
 	}
 
+	public boolean checkCollision(Piece thePlayer, Piece theSwitch){
+		boolean collision = false;
+		
+		if(thePlayer.getXCoord() == theSwitch.getXCoord() && thePlayer.getYCoord() == theSwitch.getYCoord()){
+			System.out.println("SWITCHSWITCHSWITCHSWITCHSWITCHSWITCHSWITCHSWITCHSWITCHSWITCH");
+			collision = true;
+		}
+		
+		
+		return collision;
+	}
+	
 	public class boardListener implements KeyListener{
 
 		public void keyPressed(KeyEvent arg0) {
 			switch(arg0.getKeyCode()){
 			case KeyEvent.VK_UP : 
-				if(player.getYLocation() != 0){
-					player.setYLocation(player.getYLocation() - 1);
+				if(player.getYCoord() != 0){
+					player.setYCoord(player.getYCoord() - 1);
 				}
 				break;
 			case KeyEvent.VK_DOWN : 
-				if(player.getYLocation() != 69){
-					player.setYLocation(player.getYLocation() + 1);
+				if(player.getYCoord() != 69){
+					player.setYCoord(player.getYCoord() + 1);
 				}
 				break;
 			case KeyEvent.VK_RIGHT : 
-				if(player.getXLocation() != 109){
-					player.setXLocation(player.getXLocation() + 1);
+				if(player.getXCoord() != 109){
+					player.setXCoord(player.getXCoord() + 1);
 				}
 				break;
 			case KeyEvent.VK_LEFT : 
-				if(player.getXLocation() != 0){
-					player.setXLocation(player.getXLocation() - 1);
+				if(player.getXCoord() != 0){
+					player.setXCoord(player.getXCoord() - 1);
 				}
 				break;
 			}
 		}
 
 		public void keyReleased(KeyEvent arg0) {
-			
+
 
 		}
 
